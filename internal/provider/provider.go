@@ -26,28 +26,25 @@ type provider struct {
 }
 
 type providerData struct {
-	url      types.String `tfsdk:"url"`
-	username types.String `tfsdk:"username"`
-	password types.String `tfsdk:"password"`
+	Url      types.String `tfsdk:"url"`
+	Username types.String `tfsdk:"username"`
+	Password types.String `tfsdk:"password"`
 }
 
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
+
 	var data providerData
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
-
-	fmt.Println("provider started")
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	p.client = *eva.NewClient(data.url.Value)
-	fmt.Println("client created")
+	p.client = *eva.NewClient(data.Url.Value)
 
-	err := p.client.Login(eva.LoginCredentials{Username: data.username.Value, Password: data.password.Value})
+	err := p.client.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
 
-	fmt.Println("logged in")
 	if err != nil {
 
 		diags.AddError(
@@ -62,7 +59,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 
 func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
-		"scaffolding_example": exampleResourceType{},
+		"eva_example": exampleResourceType{},
 	}, nil
 }
 

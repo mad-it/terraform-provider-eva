@@ -18,7 +18,7 @@ func NewClient(apiURL string) *Client {
 	client := resty.New().
 		SetBaseURL(apiURL).
 		SetHeader("Content-Type", contentType).
-		SetHeader("user-agent", userAgent)
+		SetHeader("EVA-User-Agent", userAgent)
 
 	return &Client{
 		Client: client,
