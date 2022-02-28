@@ -7,17 +7,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+
+	"github.com/mad-it/terraform-provider-eva/internal/eva"
 )
 
-// provider satisfies the tfsdk.Provider interface and usually is included
-// with all Resource and DataSource implementations.
 type provider struct {
-	// client can contain the upstream provider SDK or HTTP client used to
-	// communicate with the upstream service. Resource and DataSource
-	// implementations can then make calls using this client.
-	//
-	// TODO: If appropriate, implement upstream provider SDK or HTTP client.
-	// client vendorsdk.ExampleClient
+	client eva.Client
 
 	// configured is set to true at the end of the Configure method.
 	// This can be used in Resource and DataSource implementations to verify
@@ -30,9 +25,10 @@ type provider struct {
 	version string
 }
 
-// providerData can be used to store data from the Terraform configuration.
 type providerData struct {
-	Example types.String `tfsdk:"example"`
+	url      types.String `tfsdk:"url"`
+	username types.String `tfsdk:"username"`
+	password types.String `tfsdk:"password"`
 }
 
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
@@ -40,15 +36,26 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
+	fmt.Println("provider started")
+
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Configuration values are now available.
-	// if data.Example.Null { /* ... */ }
+	p.client = *eva.NewClient(data.url.Value)
+	fmt.Println("client created")
 
-	// If the upstream provider SDK or HTTP client requires configuration, such
-	// as authentication or logging, this is a great opportunity to do so.
+	err := p.client.Login(eva.LoginCredentials{Username: data.username.Value, Password: data.password.Value})
+
+	fmt.Println("logged in")
+	if err != nil {
+
+		diags.AddError(
+			"Login to EVA failed.",
+			fmt.Sprintf("An error ocurred when logging in to EVA. Error was: %s", err),
+		)
+		return
+	}
 
 	p.configured = true
 }
@@ -60,17 +67,28 @@ func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceT
 }
 
 func (p *provider) GetDataSources(ctx context.Context) (map[string]tfsdk.DataSourceType, diag.Diagnostics) {
-	return map[string]tfsdk.DataSourceType{
-		"scaffolding_example": exampleDataSourceType{},
-	}, nil
+	return map[string]tfsdk.DataSourceType{}, nil
 }
 
 func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
-			"example": {
-				MarkdownDescription: "Example provider attribute",
-				Optional:            true,
+			"url": {
+				MarkdownDescription: "The base URL of the EVA API.",
+				Validators:          []tfsdk.AttributeValidator{
+					// TODO add regex to validate its https://api.<eva-url>
+				},
+				Required: true,
+				Type:     types.StringType,
+			},
+			"username": {
+				MarkdownDescription: "Username used to log in to EVA.",
+				Required:            true,
+				Type:                types.StringType,
+			},
+			"password": {
+				MarkdownDescription: "Password used to log in to EVA.",
+				Required:            true,
 				Type:                types.StringType,
 			},
 		},
@@ -85,11 +103,6 @@ func New(version string) func() tfsdk.Provider {
 	}
 }
 
-// convertProviderType is a helper function for NewResource and NewDataSource
-// implementations to associate the concrete provider type. Alternatively,
-// this helper can be skipped and the provider type can be directly type
-// asserted (e.g. provider: in.(*provider)), however using this can prevent
-// potential panics.
 func convertProviderType(in tfsdk.Provider) (provider, diag.Diagnostics) {
 	var diags diag.Diagnostics
 

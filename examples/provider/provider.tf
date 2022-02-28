@@ -1,3 +1,5 @@
-provider "scaffolding" {
-  # example configuration here
+provider "eva" {
+  url      = ""
+  username = ""
+  password = ""
 }
