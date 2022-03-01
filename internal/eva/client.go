@@ -16,9 +16,10 @@ type Client struct {
 func NewClient(apiURL string) *Client {
 
 	client := resty.New().
-		SetBaseURL(apiURL).
+		SetHostURL(apiURL).
 		SetHeader("Content-Type", contentType).
-		SetHeader("EVA-User-Agent", userAgent)
+		SetHeader("EVA-User-Agent", userAgent).
+		SetDebug(true)
 
 	return &Client{
 		Client: client,
