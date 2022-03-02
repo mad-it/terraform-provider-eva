@@ -26,7 +26,8 @@ type provider struct {
 }
 
 type providerData struct {
-	Url      types.String `tfsdk:"url"`
+	Endpoint types.String `tfsdk:"endpoint"`
+	Token    types.String `tfsdk:"token"`
 	Username types.String `tfsdk:"username"`
 	Password types.String `tfsdk:"password"`
 }
@@ -41,17 +42,28 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
-	p.client = *eva.NewClient(data.Url.Value)
-
-	err := p.client.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
-
-	if err != nil {
-
-		diags.AddError(
-			"Login to EVA failed.",
-			fmt.Sprintf("An error ocurred when logging in to EVA. Error was: %s", err),
-		)
+	if data.Token.Null && (data.Username.Null || data.Password.Null) {
+		resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
 		return
+	}
+
+	p.client = *eva.NewClient(data.Endpoint.Value)
+
+	if !data.Token.Null {
+		p.client.Client.SetHeader("authorization", data.Token.Value)
+	} else {
+
+		err := p.client.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
+
+		if err != nil {
+
+			resp.Diagnostics.AddError(
+				"Login to EVA failed.",
+				fmt.Sprintf("An error ocurred when logging in to EVA. Error was: %s", err),
+			)
+			return
+		}
+
 	}
 
 	p.configured = true
@@ -70,22 +82,24 @@ func (p *provider) GetDataSources(ctx context.Context) (map[string]tfsdk.DataSou
 func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Attributes: map[string]tfsdk.Attribute{
-			"url": {
+			"endpoint": {
 				MarkdownDescription: "The base URL of the EVA API.",
-				Validators:          []tfsdk.AttributeValidator{
-					// TODO add regex to validate its https://api.<eva-url>
-				},
-				Required: true,
-				Type:     types.StringType,
+				Required:            true,
+				Type:                types.StringType,
+			},
+			"token": {
+				MarkdownDescription: "The base URL of the EVA API.",
+				Optional:            true,
+				Type:                types.StringType,
 			},
 			"username": {
 				MarkdownDescription: "Username used to log in to EVA.",
-				Required:            true,
+				Optional:            true,
 				Type:                types.StringType,
 			},
 			"password": {
 				MarkdownDescription: "Password used to log in to EVA.",
-				Required:            true,
+				Optional:            true,
 				Type:                types.StringType,
 			},
 		},
