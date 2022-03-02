@@ -10,18 +10,22 @@ const (
 )
 
 type Client struct {
-	Client *resty.Client
+	restClient *resty.Client
 }
 
 func NewClient(apiURL string) *Client {
 
-	client := resty.New().
-		SetHostURL(apiURL).
+	restClient := resty.New().
+		SetBaseURL(apiURL).
 		SetHeader("Content-Type", contentType).
 		SetHeader("EVA-User-Agent", userAgent).
 		SetDebug(true)
 
 	return &Client{
-		Client: client,
+		restClient: restClient,
 	}
+}
+
+func (c *Client) SetAuthorizationHeader(token string) {
+	c.restClient.SetHeader("authorization", token)
 }
