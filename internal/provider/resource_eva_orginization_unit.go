@@ -94,7 +94,7 @@ func (r organizationUnit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 		return
 	}
 
-	client_resp, err := r.provider.client.CreateOrganizationUnit(ctx, eva.CreateOrganizationUnitRequest{
+	client_resp, err := r.provider.client.CreateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
 		Name:         data.Name.Value,
 		PhoneNumber:  data.PhoneNumber.Value,
 		BackendID:    data.BackendId.Value,
@@ -157,7 +157,7 @@ func (r organizationUnit) Update(ctx context.Context, req tfsdk.UpdateResourceRe
 		return
 	}
 
-	_, err := r.provider.client.UpdateOrganizationUnit(ctx, eva.UpdateOrganizationUnitRequest{
+	_, err := r.provider.client.UpdateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
 		ID:           data.Id.Value,
 		Name:         data.Name.Value,
 		PhoneNumber:  data.PhoneNumber.Value,
