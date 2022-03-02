@@ -24,7 +24,7 @@ type LoginResponse struct {
 
 func (c *Client) Login(ctx context.Context, req LoginCredentials) error {
 
-	resp, err := c.Client.R().
+	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(loginPath)
 
@@ -45,7 +45,7 @@ func (c *Client) Login(ctx context.Context, req LoginCredentials) error {
 		return errors.New(fmt.Sprintf("Response could not be parsed. Error received: %s \nResponse received: %s", err, resp.String()))
 	}
 
-	c.Client.SetHeader("authorization", jsonResp.AuthenticationToken)
+	c.SetAuthorizationHeader(jsonResp.AuthenticationToken)
 
 	return nil
 }

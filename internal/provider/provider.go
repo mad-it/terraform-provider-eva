@@ -50,7 +50,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 	p.client = *eva.NewClient(data.Endpoint.Value)
 
 	if !data.Token.Null {
-		p.client.Client.SetHeader("authorization", data.Token.Value)
+		p.client.SetAuthorizationHeader(data.Token.Value)
 	} else {
 
 		err := p.client.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
