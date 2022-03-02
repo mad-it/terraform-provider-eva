@@ -12,7 +12,7 @@ import (
 )
 
 type provider struct {
-	client eva.Client
+	evaClient eva.Client
 
 	// configured is set to true at the end of the Configure method.
 	// This can be used in Resource and DataSource implementations to verify
@@ -47,13 +47,13 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
-	p.client = *eva.NewClient(data.Endpoint.Value)
+	p.evaClient = *eva.NewClient(data.Endpoint.Value)
 
 	if !data.Token.Null {
-		p.client.SetAuthorizationHeader(data.Token.Value)
+		p.evaClient.SetAuthorizationHeader(data.Token.Value)
 	} else {
 
-		err := p.client.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
+		err := p.evaClient.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
 
 		if err != nil {
 
