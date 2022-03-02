@@ -40,7 +40,7 @@ func (c *Client) CreateOrganizationUnit(ctx context.Context, req CreateOrUpdateO
 		ToCreate: req,
 	}
 
-	resp, err := c.Client.R().
+	resp, err := c.restClient.R().
 		SetBody(requestBody).
 		Post(createOrganizationUnitPath)
 
@@ -69,7 +69,7 @@ type UpdateOrganizationUnitResponse struct {
 }
 
 func (c *Client) UpdateOrganizationUnit(ctx context.Context, req CreateOrUpdateOrganizationUnitRequest) (*UpdateOrganizationUnitResponse, error) {
-	resp, err := c.Client.R().
+	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(updateOrganizationUnitPath)
 
@@ -110,7 +110,7 @@ type GetOrganizationUnitDetailedResponse struct {
 
 func (c *Client) GetOrganizationUnitDetailed(ctx context.Context, req GetOrganizationUnitDetailedRequest) (*GetOrganizationUnitDetailedResponse, error) {
 
-	resp, err := c.Client.R().
+	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(getOrganizationUnitPath)
 
@@ -145,7 +145,7 @@ type DeleteOrganizationUnitResponse struct {
 }
 
 func (c *Client) DeleteOrganizationUnit(ctx context.Context, req DeleteOrganizationUnitRequest) (*DeleteOrganizationUnitResponse, error) {
-	resp, err := c.Client.R().
+	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(deleteOrganizationUnitPath)
 

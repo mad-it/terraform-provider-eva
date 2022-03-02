@@ -16,10 +16,17 @@ type organizationUnitType struct{}
 
 func (t organizationUnitType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "Eva organization unit configration.",
 
 		Attributes: map[string]tfsdk.Attribute{
+			"id": {
+				MarkdownDescription: "Unique ID of the shop",
+				Computed:            true,
+				Type:                types.Int64Type,
+				PlanModifiers: tfsdk.AttributePlanModifiers{
+					tfsdk.UseStateForUnknown(),
+				},
+			},
 			"name": {
 				MarkdownDescription: "Name of the shop",
 				Required:            true,
@@ -34,14 +41,6 @@ func (t organizationUnitType) GetSchema(ctx context.Context) (tfsdk.Schema, diag
 				MarkdownDescription: "Email of the shop",
 				Required:            true,
 				Type:                types.StringType,
-			},
-			"id": {
-				MarkdownDescription: "Unique ID of the shop",
-				Computed:            true,
-				Type:                types.Int64Type,
-				PlanModifiers: tfsdk.AttributePlanModifiers{
-					tfsdk.UseStateForUnknown(),
-				},
 			},
 			"backend_id": {
 				MarkdownDescription: "Unique reference value of the shop",
@@ -94,7 +93,7 @@ func (r organizationUnit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 		return
 	}
 
-	client_resp, err := r.provider.client.CreateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
+	client_resp, err := r.provider.evaClient.CreateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
 		Name:         data.Name.Value,
 		PhoneNumber:  data.PhoneNumber.Value,
 		BackendID:    data.BackendId.Value,
@@ -126,7 +125,7 @@ func (r organizationUnit) Read(ctx context.Context, req tfsdk.ReadResourceReques
 		return
 	}
 
-	client_resp, err := r.provider.client.GetOrganizationUnitDetailed(ctx, eva.GetOrganizationUnitDetailedRequest{
+	client_resp, err := r.provider.evaClient.GetOrganizationUnitDetailed(ctx, eva.GetOrganizationUnitDetailedRequest{
 		ID: data.Id.Value,
 	})
 
@@ -157,7 +156,7 @@ func (r organizationUnit) Update(ctx context.Context, req tfsdk.UpdateResourceRe
 		return
 	}
 
-	_, err := r.provider.client.UpdateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
+	_, err := r.provider.evaClient.UpdateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
 		ID:           data.Id.Value,
 		Name:         data.Name.Value,
 		PhoneNumber:  data.PhoneNumber.Value,
@@ -188,7 +187,7 @@ func (r organizationUnit) Delete(ctx context.Context, req tfsdk.DeleteResourceRe
 		return
 	}
 
-	_, err := r.provider.client.DeleteOrganizationUnit(ctx, eva.DeleteOrganizationUnitRequest{
+	_, err := r.provider.evaClient.DeleteOrganizationUnit(ctx, eva.DeleteOrganizationUnitRequest{
 		ID: data.Id.Value,
 	})
 
