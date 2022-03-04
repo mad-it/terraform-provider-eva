@@ -23,7 +23,6 @@ type LoginResponse struct {
 }
 
 func (c *Client) Login(ctx context.Context, req LoginCredentials) error {
-
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(loginPath)
