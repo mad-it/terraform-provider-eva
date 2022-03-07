@@ -17,7 +17,7 @@ type cookbookType struct{}
 
 func (t cookbookType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		MarkdownDescription: "Eva organization unit configration.",
+		MarkdownDescription: "Eva cookbook configuration.",
 
 		Attributes: map[string]tfsdk.Attribute{
 			"id": {
@@ -83,7 +83,7 @@ func (r cookbook) Create(ctx context.Context, req tfsdk.CreateResourceRequest, r
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Creating cookbook unit failed.", fmt.Sprintf("Unable to create example, got error: %s", err))
+		resp.Diagnostics.AddError("Creating cookbook unit failed.", fmt.Sprintf("Unable to create cookbook, got error: %s", err))
 		return
 	}
 
@@ -140,7 +140,7 @@ func (r cookbook) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, r
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Updating cookbook unit failed.", fmt.Sprintf("Unable to update OU, got error: %s", err))
+		resp.Diagnostics.AddError("Updating cookbook unit failed.", fmt.Sprintf("Unable to update cookbook, got error: %s", err))
 		return
 	}
 
@@ -163,7 +163,7 @@ func (r cookbook) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, r
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Deleting cookbook unit failed.", fmt.Sprintf("Unable to delete OU, got error: %s", err))
+		resp.Diagnostics.AddError("Deleting cookbook unit failed.", fmt.Sprintf("Unable to delete cookbook, got error: %s", err))
 		return
 	}
 
