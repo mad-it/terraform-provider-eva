@@ -18,7 +18,7 @@ type settingType struct{}
 
 func (t settingType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		MarkdownDescription: "Eva organization unit configration.",
+		MarkdownDescription: "Eva organization unit settings configuration.",
 
 		Attributes: map[string]tfsdk.Attribute{
 			"key": {
@@ -76,7 +76,7 @@ func (r setting) Create(ctx context.Context, req tfsdk.CreateResourceRequest, re
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Creating setting unit failed.", fmt.Sprintf("Unable to create example, got error: %s", err))
+		resp.Diagnostics.AddError("Creating setting unit failed.", fmt.Sprintf("Unable to create setting, got error: %s", err))
 		return
 	}
 
@@ -102,7 +102,7 @@ func (r setting) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Creating setting unit failed.", fmt.Sprintf("Unable to create example, got error: %s", err))
+		resp.Diagnostics.AddError("Getting setting data failed.", fmt.Sprintf("Unable to get setting, got error: %s", err))
 		return
 	}
 
@@ -136,7 +136,7 @@ func (r setting) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, re
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Updating setting unit failed.", fmt.Sprintf("Unable to update OU, got error: %s", err))
+		resp.Diagnostics.AddError("Updating setting unit failed.", fmt.Sprintf("Unable to update setting, got error: %s", err))
 		return
 	}
 
