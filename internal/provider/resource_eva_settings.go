@@ -18,7 +18,7 @@ type settingType struct{}
 
 func (t settingType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
-		MarkdownDescription: "Eva organization unit configration.",
+		MarkdownDescription: "Eva organization unit settings configuration.",
 
 		Attributes: map[string]tfsdk.Attribute{
 			"key": {
