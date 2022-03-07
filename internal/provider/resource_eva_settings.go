@@ -163,7 +163,7 @@ func (r setting) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, re
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Deleting setting unit failed.", fmt.Sprintf("Unable to delete OU, got error: %s", err))
+		resp.Diagnostics.AddError("Deleting setting unit failed.", fmt.Sprintf("Unable to delete setting, got error: %s", err))
 		return
 	}
 
