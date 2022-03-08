@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -12,13 +13,16 @@ import (
 // CLI command executed to create a provider server to which the CLI can
 // reattach.
 var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-	"scaffolding": func() (tfprotov6.ProviderServer, error) {
-		return tfsdk.NewProtocol6Server(New("test")()), nil
+	"eva": func() (tfprotov6.ProviderServer, error) {
+		return tfsdk.NewProtocol6Server(New("test", os.Getenv("EVA_API_URL_TEST_ACC"), os.Getenv("EVA_API_TOKEN_TEST_ACC"))()), nil
 	},
 }
 
 func testAccPreCheck(t *testing.T) {
-	// You can add code here to run prior to any test case execution, for example assertions
-	// about the appropriate environment variables being set are common to see in a pre-check
-	// function.
+	if v := os.Getenv("EVA_API_URL_TEST_ACC"); v == "" {
+		t.Fatal("EVA_API_URL_TEST_ACC must be set for acceptance tests")
+	}
+	if v := os.Getenv("EVA_API_TOKEN_TEST_ACC"); v == "" {
+		t.Fatal("EVA_API_TOKEN_TEST_ACC must be set for acceptance tests")
+	}
 }

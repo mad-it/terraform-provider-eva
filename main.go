@@ -26,7 +26,7 @@ func main() {
 		Name: "registry.terraform.io/mad-it/eva",
 	}
 
-	err := tfsdk.Serve(context.Background(), provider.New(version), opts)
+	err := tfsdk.Serve(context.Background(), provider.New(version, "", ""), opts)
 
 	if err != nil {
 		log.Fatal(err.Error())

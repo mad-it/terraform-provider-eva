@@ -23,6 +23,10 @@ type provider struct {
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
 	version string
+
+	apiEndpoint string
+
+	apiToken string
 }
 
 type providerData struct {
@@ -33,7 +37,6 @@ type providerData struct {
 }
 
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
-
 	var data providerData
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -42,15 +45,25 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
-	if data.Token.Null && (data.Username.Null || data.Password.Null) {
-		resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
-		return
+	if p.apiEndpoint == "" || p.apiToken == "" {
+		if data.Endpoint.Null {
+			resp.Diagnostics.AddError("No valid eva endpoint provided.", "A valid api endpoint is needed to authenticate on eva")
+			return
+		}
+
+		if data.Token.Null && (data.Username.Null || data.Password.Null) {
+			resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
+			return
+		}
+
+		p.apiEndpoint = data.Endpoint.Value
+		p.apiToken = data.Token.Value
 	}
 
-	p.evaClient = *eva.NewClient(data.Endpoint.Value)
+	p.evaClient = *eva.NewClient(p.apiEndpoint)
 
-	if !data.Token.Null {
-		p.evaClient.SetAuthorizationHeader(data.Token.Value)
+	if p.apiToken != "" {
+		p.evaClient.SetAuthorizationHeader(p.apiToken)
 	} else {
 
 		err := p.evaClient.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
@@ -86,7 +99,7 @@ func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostic
 		Attributes: map[string]tfsdk.Attribute{
 			"endpoint": {
 				MarkdownDescription: "The base URL of the EVA API.",
-				Required:            true,
+				Optional:            true,
 				Type:                types.StringType,
 			},
 			"token": {
@@ -108,10 +121,12 @@ func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostic
 	}, nil
 }
 
-func New(version string) func() tfsdk.Provider {
+func New(version string, apiEndpoint string, apiToken string) func() tfsdk.Provider {
 	return func() tfsdk.Provider {
 		return &provider{
-			version: version,
+			version:     version,
+			apiEndpoint: apiEndpoint,
+			apiToken:    apiToken,
 		}
 	}
 }
