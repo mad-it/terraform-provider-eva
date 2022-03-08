@@ -23,7 +23,7 @@ func (t rolePermissionsType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.
 		Attributes: map[string]tfsdk.Attribute{
 			"role_id": {
 				MarkdownDescription: "ID of the role which permissions will be attached to",
-				Computed:            true,
+				Required:            true,
 				Type:                types.Int64Type,
 				PlanModifiers: tfsdk.AttributePlanModifiers{
 					tfsdk.UseStateForUnknown(),
@@ -41,7 +41,7 @@ func (t rolePermissionsType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.
 func (t rolePermissionsType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
-	return roleResource{
+	return rolePermissionsResource{
 		provider: provider,
 	}, diags
 }
