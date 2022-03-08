@@ -183,7 +183,7 @@ func (r rolePermissionsResource) Update(ctx context.Context, req tfsdk.UpdateRes
 }
 
 func (r rolePermissionsResource) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
-	var data inputRoleData
+	var data inputRolePermissionsData
 
 	diags := req.State.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -192,12 +192,28 @@ func (r rolePermissionsResource) Delete(ctx context.Context, req tfsdk.DeleteRes
 		return
 	}
 
-	_, err := r.provider.evaClient.DeleteRole(ctx, eva.DeleteRoleRequest{
-		ID: data.ID.Value,
+	roleData, getRoleErr := r.provider.evaClient.GetRole(ctx, eva.GetRoleRequest{
+		ID: data.RoleID.Value,
 	})
 
-	if err != nil {
-		resp.Diagnostics.AddError("Deleting role unit failed.", fmt.Sprintf("Unable to delete role, got error: %s", err))
+	if getRoleErr != nil {
+		resp.Diagnostics.AddError("Deleting role permissions failed.", fmt.Sprintf("Unable to get current role permissions, got error: %s", getRoleErr))
+		return
+	}
+
+	var currentScopedFunctionalities []eva.ScopedFunctionality
+
+	for _, scopedFunctionality := range roleData.Result.ScopedFunctionalities {
+		currentScopedFunctionalities = append(currentScopedFunctionalities, eva.ScopedFunctionality(scopedFunctionality))
+	}
+
+	_, detachErr := r.provider.evaClient.DetachFunctionalitiesFromRole(ctx, eva.DetachFunctionalitiesFromRoleRequest{
+		RoleID:                data.RoleID.Value,
+		ScopedFunctionalities: currentScopedFunctionalities,
+	})
+
+	if detachErr != nil {
+		resp.Diagnostics.AddError("Deleting role unit failed.", fmt.Sprintf("Unable to detach current role permissions, got error: %s", detachErr))
 		return
 	}
 
