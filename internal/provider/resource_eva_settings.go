@@ -106,11 +106,12 @@ func (r setting) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *
 		return
 	}
 
-	if strings.HasPrefix(client_resp.Value, "********") &&
-		strings.HasSuffix(client_resp.Value, data.Value.Value[len(data.Value.Value)-4:]) {
-		// For sensitive data like passwords, EVA replaces everything except the last 4 characters with *.
-		// So when the last 4 characters match in the existing state, do nothing.
-	} else {
+	var hasSensitiveDataChanged = strings.HasPrefix(client_resp.Value, "********") &&
+		strings.HasSuffix(client_resp.Value, data.Value.Value[len(data.Value.Value)-4:])
+
+	// For sensitive data like passwords, EVA replaces everything except the last 4 characters with *.
+	// So when the last 4 characters match in the existing state, do nothing.
+	if !hasSensitiveDataChanged {
 		data.Value = types.String{Value: client_resp.Value}
 	}
 
