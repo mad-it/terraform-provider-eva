@@ -40,7 +40,7 @@ const (
 	/**
 	 * A Country is a special case of the Container type that represents a Country division in the OrganizationUnits structure.
 	 */
-	Country = 32
+	Country = 36
 	/**
 	 * A shop can be flagged as franchiser to allow some special flows.
 	 */
