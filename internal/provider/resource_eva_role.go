@@ -63,7 +63,7 @@ type inputRoleData struct {
 	ID       types.Int64  `tfsdk:"id"`
 	Name     types.String `tfsdk:"name"`
 	UserType types.Int64  `tfsdk:"user_type"`
-	Code     types.String `tfsdk:"is_active"`
+	Code     types.String `tfsdk:"code"`
 }
 
 func (r roleResource) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
