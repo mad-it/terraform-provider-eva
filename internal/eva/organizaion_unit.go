@@ -16,15 +16,28 @@ const (
 	updateOrganizationUnitPath = "/api/core/UpdateOrganizationUnit"
 )
 
+type address struct {
+	HouseNumber string  `json:"HouseNumber,omitempty"`
+	Address1    string  `json:"Address1,omitempty"`
+	Address2    string  `json:"Address2,omitempty"`
+	ZipCode     string  `json:"ZipCode,omitempty"`
+	City        string  `json:"City,omitempty"`
+	CountryID   string  `json:"CountryID,omitempty"`
+	Latitude    float64 `json:"Latitude,omitempty"`
+	Longitude   float64 `json:"Longitude,omitempty"`
+}
+
 type CreateOrUpdateOrganizationUnitRequest struct {
-	ID                  int64  `json:"ID,omitempty"`
-	Name                string `json:"Name,omitempty"`
-	PhoneNumber         string `json:"PhoneNumber,omitempty"`
-	EmailAddress        string `json:"EmailAddress,omitempty"`
-	ParentID            int64  `json:"ParentID,omitempty"`
-	CurrencyID          string `json:"CurrencyID,omitempty"`
-	BackendID           string `json:"BackendID,omitempty"`
-	CostPriceCurrencyID string `json:"CostPriceCurrencyID,omitempty"`
+	ID                  int64   `json:"ID,omitempty"`
+	Name                string  `json:"Name,omitempty"`
+	PhoneNumber         string  `json:"PhoneNumber,omitempty"`
+	EmailAddress        string  `json:"EmailAddress,omitempty"`
+	ParentID            int64   `json:"ParentID,omitempty"`
+	CurrencyID          string  `json:"CurrencyID,omitempty"`
+	BackendID           string  `json:"BackendID,omitempty"`
+	CostPriceCurrencyID string  `json:"CostPriceCurrencyID,omitempty"`
+	TypeID                  int64   `json:"ID,omitempty"`
+	Address             address `json:"Address,omitempty"`
 }
 
 type createOrganizationUnitRequest struct {
