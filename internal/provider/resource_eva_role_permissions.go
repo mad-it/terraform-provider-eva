@@ -22,8 +22,9 @@ func (t rolePermissionsType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.
 
 		Attributes: map[string]tfsdk.Attribute{
 			"id": {
-				Type:     types.Int64Type,
-				Computed: true,
+				Type:                types.Int64Type,
+				Computed:            true,
+				MarkdownDescription: "Role permissions does not have a unique ID. This attribute is populated within the role_id",
 			},
 			"role_id": {
 				MarkdownDescription: "ID of the role which permissions will be attached to",
@@ -123,7 +124,7 @@ func (r rolePermissionsResource) Read(ctx context.Context, req tfsdk.ReadResourc
 	jsonresp, err := json.Marshal(client_resp.Result.ScopedFunctionalities)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Getting role unit failed.", fmt.Sprintf("Unable to get role, got error: %s", err))
+		resp.Diagnostics.AddError("Getting role unit failed.", fmt.Sprintf("Unable to parse scoped functionalities, got error: %s", err))
 		return
 	}
 

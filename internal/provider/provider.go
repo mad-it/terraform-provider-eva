@@ -24,8 +24,12 @@ type provider struct {
 	// testing.
 	version string
 
+	// apiEndpoint is set to the provider on acceptance tests, it should be loaded
+	// with value from EVA_API_URL_TEST_ACC environment variable
 	apiEndpoint string
 
+	// apiToken is set to the provider on acceptance tests, it should be loaded
+	// with value from EVA_API_TOKEN_TEST_ACC environment variable
 	apiToken string
 }
 
@@ -45,6 +49,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
+	// Check if provider is being configured in acceptance tests, otherwise use input values
 	if p.apiEndpoint == "" || p.apiToken == "" {
 		if data.Endpoint.Null {
 			resp.Diagnostics.AddError("No valid eva endpoint provided.", "A valid api endpoint is needed to authenticate on eva")
