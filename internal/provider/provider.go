@@ -85,7 +85,6 @@ func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceT
 	return map[string]tfsdk.ResourceType{
 		"eva_organization_unit": organizationUnitType{},
 		"eva_role":              roleType{},
-		"eva_role_permissions":  rolePermissionsType{},
 		"eva_setting":           settingType{},
 		"eva_cookbook":          cookbookType{},
 	}, nil

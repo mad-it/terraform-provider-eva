@@ -44,9 +44,18 @@ func TestAccEvaRoleResource(t *testing.T) {
 func testAccEvaRoleResourceConfig(roleName string, userType int64, code string) string {
 	return fmt.Sprintf(`
 resource "eva_role" "test" {
-	name          = "%s"
-	user_type     = %d
-	code          = "%s"
+	name                   = "%s"
+	user_type              = %d
+	code                   = "%s"
+	scoped_functionalities = [
+		{
+			functionality      = "%s"
+			scope              = %s
+			requires_elevation = %s
+		}
+	]
 }
+
+
 `, roleName, userType, code)
 }
