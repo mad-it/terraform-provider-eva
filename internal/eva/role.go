@@ -57,13 +57,13 @@ type GetRoleRequest struct {
 }
 
 type Role struct {
-	Name                  string                    `json:"Name"`
-	UserType              int64                     `json:"UserType,omitempty"`
-	Code                  string                    `json:"Code,omitempty"`
-	ScopedFunctionalities []RoleScopedFunctionality `json:"ScopedFunctionalities"`
+	Name                  string              `json:"Name"`
+	UserType              int64               `json:"UserType,omitempty"`
+	Code                  string              `json:"Code,omitempty"`
+	ScopedFunctionalities []RoleFunctionality `json:"ScopedFunctionalities"`
 }
 
-type RoleScopedFunctionality struct {
+type RoleFunctionality struct {
 	Functionality     string
 	Scope             int64
 	RequiresElevation bool
@@ -170,8 +170,8 @@ func (c *Client) DeleteRole(ctx context.Context, req DeleteRoleRequest) (*Delete
 }
 
 type AttachFunctionalitiesToRoleRequest struct {
-	RoleID                int64                     `json:"RoleID"`
-	ScopedFunctionalities []RoleScopedFunctionality `json:"ScopedFunctionalities,omitempty"`
+	RoleID                int64               `json:"RoleID"`
+	ScopedFunctionalities []RoleFunctionality `json:"ScopedFunctionalities,omitempty"`
 }
 
 type AttachFunctionalitiesToRoleResponse struct {
@@ -203,8 +203,8 @@ func (c *Client) AttachFunctionalitiesToRole(ctx context.Context, req AttachFunc
 }
 
 type DetachFunctionalitiesFromRoleRequest struct {
-	RoleID                int64                     `json:"RoleID"`
-	ScopedFunctionalities []RoleScopedFunctionality `json:"ScopedFunctionalities,omitempty"`
+	RoleID                int64               `json:"RoleID"`
+	ScopedFunctionalities []RoleFunctionality `json:"ScopedFunctionalities,omitempty"`
 }
 
 type DetachFunctionalitiesFromRoleResponse struct {

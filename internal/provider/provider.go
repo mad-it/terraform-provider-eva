@@ -87,7 +87,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
 		"eva_organization_unit": organizationUnitType{},
-		"eva_role":              roleType{},
+		"eva_role":              roleProviderType{},
 		"eva_setting":           settingType{},
 		"eva_cookbook":          cookbookType{},
 	}, nil

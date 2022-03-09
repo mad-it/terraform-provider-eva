@@ -13,9 +13,9 @@ import (
 	"github.com/mad-it/terraform-provider-eva/internal/eva"
 )
 
-type roleType struct{}
+type roleProviderType struct{}
 
-func (t roleType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (t roleProviderType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Eva role configuration.",
 
@@ -71,37 +71,37 @@ func (t roleType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics
 	}, nil
 }
 
-func (t roleType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (t roleProviderType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
-	return roleResource{
+	return roleProdiver{
 		provider: provider,
 	}, diags
 }
 
-type roleResource struct {
+type roleProdiver struct {
 	provider provider
 }
 
-type inputRole struct {
-	ID                    types.Int64                    `tfsdk:"id"`
-	Name                  types.String                   `tfsdk:"name"`
-	UserType              types.Int64                    `tfsdk:"user_type"`
-	Code                  types.String                   `tfsdk:"code"`
-	ScopedFunctionalities []inputRoleScopedFunctionality `tfsdk:"scoped_functionalities"`
+type roleProviderTypeData struct {
+	ID                    types.Int64                 `tfsdk:"id"`
+	Name                  types.String                `tfsdk:"name"`
+	UserType              types.Int64                 `tfsdk:"user_type"`
+	Code                  types.String                `tfsdk:"code"`
+	ScopedFunctionalities []roleFunctionalityTypeData `tfsdk:"scoped_functionalities"`
 }
 
-type inputRoleScopedFunctionality struct {
+type roleFunctionalityTypeData struct {
 	Functionality     types.String `tfsdk:"functionality"`
 	Scope             types.Int64  `tfsdk:"scope"`
 	RequiresElevation types.Bool   `tfsdk:"requires_elevation"`
 }
 
-func (s inputRole) getListOfScopedFunctionalities() []eva.RoleScopedFunctionality {
-	var scopedFunctionalities []eva.RoleScopedFunctionality
+func (s roleProviderTypeData) getListOfFunctionalities() []eva.RoleFunctionality {
+	var scopedFunctionalities []eva.RoleFunctionality
 
 	for _, scopedFunctionality := range s.ScopedFunctionalities {
-		scopedFunctionalities = append(scopedFunctionalities, eva.RoleScopedFunctionality{
+		scopedFunctionalities = append(scopedFunctionalities, eva.RoleFunctionality{
 			Functionality:     scopedFunctionality.Functionality.Value,
 			Scope:             scopedFunctionality.Scope.Value,
 			RequiresElevation: scopedFunctionality.RequiresElevation.Value,
@@ -111,9 +111,9 @@ func (s inputRole) getListOfScopedFunctionalities() []eva.RoleScopedFunctionalit
 	return scopedFunctionalities
 }
 
-func (s inputRole) setListOfScopedFunctionalities(scopedFunctionalities []eva.RoleScopedFunctionality) {
+func (s roleProviderTypeData) setListOfFunctionalities(scopedFunctionalities []eva.RoleFunctionality) {
 	for _, scopedFunctionality := range scopedFunctionalities {
-		s.ScopedFunctionalities = append(s.ScopedFunctionalities, inputRoleScopedFunctionality{
+		s.ScopedFunctionalities = append(s.ScopedFunctionalities, roleFunctionalityTypeData{
 			Functionality:     types.String{Value: scopedFunctionality.Functionality},
 			Scope:             types.Int64{Value: scopedFunctionality.Scope},
 			RequiresElevation: types.Bool{Value: scopedFunctionality.RequiresElevation},
@@ -121,8 +121,8 @@ func (s inputRole) setListOfScopedFunctionalities(scopedFunctionalities []eva.Ro
 	}
 }
 
-func (r roleResource) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
-	var data inputRole
+func (r roleProdiver) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+	var data roleProviderTypeData
 
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -146,7 +146,7 @@ func (r roleResource) Create(ctx context.Context, req tfsdk.CreateResourceReques
 
 	_, attachPermissionsToRoleErr := r.provider.evaClient.AttachFunctionalitiesToRole(ctx, eva.AttachFunctionalitiesToRoleRequest{
 		RoleID:                data.ID.Value,
-		ScopedFunctionalities: data.getListOfScopedFunctionalities(),
+		ScopedFunctionalities: data.getListOfFunctionalities(),
 	})
 
 	if attachPermissionsToRoleErr != nil {
@@ -160,8 +160,8 @@ func (r roleResource) Create(ctx context.Context, req tfsdk.CreateResourceReques
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r roleResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
-	var data inputRole
+func (r roleProdiver) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+	var data roleProviderTypeData
 
 	diags := req.State.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -182,14 +182,14 @@ func (r roleResource) Read(ctx context.Context, req tfsdk.ReadResourceRequest, r
 	data.Name = types.String{Value: roleData.Result.Name}
 	data.UserType = types.Int64{Value: roleData.Result.UserType}
 	data.Code = types.String{Value: roleData.Result.Code}
-	data.setListOfScopedFunctionalities(roleData.Result.ScopedFunctionalities)
+	data.setListOfFunctionalities(roleData.Result.ScopedFunctionalities)
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r roleResource) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
-	var data inputRole
+func (r roleProdiver) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+	var data roleProviderTypeData
 
 	diags := req.Plan.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -231,7 +231,7 @@ func (r roleResource) Update(ctx context.Context, req tfsdk.UpdateResourceReques
 
 	_, attachErr := r.provider.evaClient.AttachFunctionalitiesToRole(ctx, eva.AttachFunctionalitiesToRoleRequest{
 		RoleID:                data.ID.Value,
-		ScopedFunctionalities: data.getListOfScopedFunctionalities(),
+		ScopedFunctionalities: data.getListOfFunctionalities(),
 	})
 
 	if attachErr != nil {
@@ -243,8 +243,8 @@ func (r roleResource) Update(ctx context.Context, req tfsdk.UpdateResourceReques
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r roleResource) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
-	var data inputRole
+func (r roleProdiver) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+	var data roleProviderTypeData
 
 	diags := req.State.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -265,6 +265,6 @@ func (r roleResource) Delete(ctx context.Context, req tfsdk.DeleteResourceReques
 	resp.State.RemoveResource(ctx)
 }
 
-func (r roleResource) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r roleProdiver) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
 	tfsdk.ResourceImportStatePassthroughID(ctx, tftypes.NewAttributePath().WithAttributeName("id"), req, resp)
 }
