@@ -3,6 +3,8 @@ package provider
 import (
 	"context"
 	"fmt"
+	"os"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -42,6 +44,7 @@ type providerData struct {
 
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
 	var data providerData
+
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
@@ -49,33 +52,51 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
-	if data.Endpoint.Null {
-		resp.Diagnostics.AddError("No valid eva endpoint provided.", "A valid api endpoint is needed to authenticate on eva")
-		return
-	}
-
-	if data.Token.Null && (data.Username.Null || data.Password.Null) {
-		resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
-		return
-	}
-
-	p.evaClient = *eva.NewClient(data.Endpoint.Value)
-
-	if !data.Token.Null {
-		p.evaClient.SetAuthorizationHeader(data.Token.Value)
-	} else {
-
-		err := p.evaClient.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
-
-		if err != nil {
-
-			resp.Diagnostics.AddError(
-				"Login to EVA failed.",
-				fmt.Sprintf("An error ocurred when logging in to EVA. Error was: %s", err),
-			)
+	// If provider is running in a different environment than test, input configuration values must be used
+	// to configure the provider, otherwise environment variable must be used to run tests
+	if p.version != "test" {
+		if data.Endpoint.Null {
+			resp.Diagnostics.AddError("No valid eva endpoint provided.", "A valid api endpoint is needed to authenticate on eva")
 			return
 		}
 
+		if data.Token.Null && (data.Username.Null || data.Password.Null) {
+			resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
+			return
+		}
+
+		p.evaClient = *eva.NewClient(data.Endpoint.Value, true)
+
+		if !data.Token.Null {
+			p.evaClient.SetAuthorizationHeader(data.Token.Value)
+		} else {
+
+			err := p.evaClient.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
+
+			if err != nil {
+
+				resp.Diagnostics.AddError(
+					"Login to EVA failed.",
+					fmt.Sprintf("An error ocurred when logging in to EVA. Error was: %s", err),
+				)
+				return
+			}
+
+		}
+	} else {
+		debugMode, err := strconv.ParseBool(os.Getenv("DEBUG_HTTP"))
+
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to parse to bool value from DEBUG_HTTP environment variable.",
+				fmt.Sprintf("An error ocurred parsing to bool value from DEBUG_HTTP environment variable. Error was: %s", err),
+			)
+
+			return
+		}
+
+		p.evaClient = *eva.NewClient(os.Getenv("EVA_API_URL_TEST_ACC"), debugMode)
+		p.evaClient.SetAuthorizationHeader(os.Getenv("EVA_API_TOKEN_TEST_ACC"))
 	}
 
 	p.configured = true

@@ -13,13 +13,13 @@ type Client struct {
 	restClient *resty.Client
 }
 
-func NewClient(apiURL string) *Client {
+func NewClient(apiURL string, debugMode bool) *Client {
 
 	restClient := resty.New().
 		SetBaseURL(apiURL).
 		SetHeader("Content-Type", contentType).
 		SetHeader("EVA-User-Agent", userAgent).
-		SetDebug(true)
+		SetDebug(debugMode)
 
 	return &Client{
 		restClient: restClient,
