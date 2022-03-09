@@ -14,7 +14,7 @@ import (
 // reattach.
 var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
 	"eva": func() (tfprotov6.ProviderServer, error) {
-		return tfsdk.NewProtocol6Server(New("test", os.Getenv("EVA_API_URL_TEST_ACC"), os.Getenv("EVA_API_TOKEN_TEST_ACC"))()), nil
+		return tfsdk.NewProtocol6Server(New("test")()), nil
 	},
 }
 

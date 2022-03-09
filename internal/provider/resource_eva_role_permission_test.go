@@ -14,8 +14,7 @@ func TestAccEvaRolePermissionsResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             testAccEvaRolePermissionsResourceConfig("AccessPrivacyDataRequests", 1, "false"),
+				Config: testAccEvaRolePermissionsResourceConfig("AccessPrivacyDataRequests", 1, "false"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("eva_role_permissions.test", "scoped_functionalities", "[{\"Functionality\":\"AccessPrivacyDataRequests\",\"RequiresElevation\":false,\"Scope\":1}]"),
 				),
@@ -28,8 +27,7 @@ func TestAccEvaRolePermissionsResource(t *testing.T) {
 			// },
 			// Update and Read testing
 			{
-				ExpectNonEmptyPlan: true,
-				Config:             testAccEvaRolePermissionsResourceConfig("InfrastructureProxy", 2, "true"),
+				Config: testAccEvaRolePermissionsResourceConfig("InfrastructureProxy", 2, "true"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("eva_role_permissions.test", "scoped_functionalities", "[{\"Functionality\":\"InfrastructureProxy\",\"RequiresElevation\":true,\"Scope\":2}]"),
 				),
@@ -49,13 +47,13 @@ resource "eva_role" "test" {
 
 resource "eva_role_permissions" "test" {
 	role_id          		   = eva_role.test.id
-	scoped_functionalities     = jsonencode([
+	scoped_functionalities     = [
 		{
-			Functionality     = "%s",
-			Scope             = %d,
-			RequiresElevation = %s
+			functionality      = "%s"
+			scope              = %d
+			requires_elevation = %s
 		}
-	])
+	]
 }
 `, functionality, scope, requiresElevation)
 }

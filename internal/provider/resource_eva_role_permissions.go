@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -37,7 +36,26 @@ func (t rolePermissionsType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.
 			"scoped_functionalities": {
 				MarkdownDescription: "list of scoped functionalities to be attached",
 				Required:            true,
-				Type:                types.StringType,
+				Attributes: tfsdk.ListNestedAttributes(
+					map[string]tfsdk.Attribute{
+						"functionality": {
+							MarkdownDescription: "functionality identifier",
+							Required:            true,
+							Type:                types.StringType,
+						},
+						"scope": {
+							MarkdownDescription: "functionality scope",
+							Required:            true,
+							Type:                types.Int64Type,
+						},
+						"requires_elevation": {
+							MarkdownDescription: "whether functionality requires elevation or not",
+							Required:            true,
+							Type:                types.BoolType,
+						},
+					},
+					tfsdk.ListNestedAttributesOptions{},
+				),
 			},
 		},
 	}, nil
@@ -56,15 +74,15 @@ type rolePermissionsResource struct {
 }
 
 type inputRolePermissionsData struct {
-	ID                    types.Int64  `tfsdk:"id"`
-	RoleID                types.Int64  `tfsdk:"role_id"`
-	ScopedFunctionalities types.String `tfsdk:"scoped_functionalities"`
+	ID                    types.Int64                `tfsdk:"id"`
+	RoleID                types.Int64                `tfsdk:"role_id"`
+	ScopedFunctionalities []inputScopedFunctionality `tfsdk:"scoped_functionalities"`
 }
 
 type inputScopedFunctionality struct {
-	Functionality     types.String
-	Scope             types.Int64
-	RequiresElevation types.Bool
+	Functionality     types.String `tfsdk:"functionality"`
+	Scope             types.Int64  `tfsdk:"scope"`
+	RequiresElevation types.Bool   `tfsdk:"requires_elevation"`
 }
 
 func (r rolePermissionsResource) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
@@ -79,9 +97,12 @@ func (r rolePermissionsResource) Create(ctx context.Context, req tfsdk.CreateRes
 
 	var scopedFunctionalities []eva.ScopedFunctionality
 
-	if err := json.Unmarshal([]byte(data.ScopedFunctionalities.Value), &scopedFunctionalities); err != nil {
-		resp.Diagnostics.AddError("scoped_functionalities is not a valid json.", fmt.Sprintf("Unable to parse scoped_functionalities field, got error: %s", err))
-		return
+	for _, scopedFunctionality := range data.ScopedFunctionalities {
+		scopedFunctionalities = append(scopedFunctionalities, eva.ScopedFunctionality{
+			Functionality:     scopedFunctionality.Functionality.Value,
+			Scope:             scopedFunctionality.Scope.Value,
+			RequiresElevation: scopedFunctionality.RequiresElevation.Value,
+		})
 	}
 
 	client_resp, err := r.provider.evaClient.AttachFunctionalitiesToRole(ctx, eva.AttachFunctionalitiesToRoleRequest{
@@ -121,14 +142,17 @@ func (r rolePermissionsResource) Read(ctx context.Context, req tfsdk.ReadResourc
 		return
 	}
 
-	jsonresp, err := json.Marshal(client_resp.Result.ScopedFunctionalities)
+	var updatedScopedFunctionalities []inputScopedFunctionality
 
-	if err != nil {
-		resp.Diagnostics.AddError("Getting role unit failed.", fmt.Sprintf("Unable to parse scoped functionalities, got error: %s", err))
-		return
+	for _, scopedFunctionality := range client_resp.Result.ScopedFunctionalities {
+		updatedScopedFunctionalities = append(updatedScopedFunctionalities, inputScopedFunctionality{
+			Functionality:     types.String{Value: scopedFunctionality.Functionality},
+			Scope:             types.Int64{Value: scopedFunctionality.Scope},
+			RequiresElevation: types.Bool{Value: scopedFunctionality.RequiresElevation},
+		})
 	}
 
-	data.ScopedFunctionalities = types.String{Value: string(jsonresp)}
+	data.ScopedFunctionalities = updatedScopedFunctionalities
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -144,13 +168,6 @@ func (r rolePermissionsResource) Update(ctx context.Context, req tfsdk.UpdateRes
 		return
 	}
 
-	var scopedFunctionalities []eva.ScopedFunctionality
-
-	if jsonParseErr := json.Unmarshal([]byte(data.ScopedFunctionalities.Value), &scopedFunctionalities); jsonParseErr != nil {
-		resp.Diagnostics.AddError("Updating role permissions failed.", fmt.Sprintf("Unable to parse scoped functionalities, got error: %s", jsonParseErr))
-		return
-	}
-
 	roleData, getRoleErr := r.provider.evaClient.GetRole(ctx, eva.GetRoleRequest{
 		ID: data.RoleID.Value,
 	})
@@ -163,7 +180,11 @@ func (r rolePermissionsResource) Update(ctx context.Context, req tfsdk.UpdateRes
 	var currentScopedFunctionalities []eva.ScopedFunctionality
 
 	for _, scopedFunctionality := range roleData.Result.ScopedFunctionalities {
-		currentScopedFunctionalities = append(currentScopedFunctionalities, eva.ScopedFunctionality(scopedFunctionality))
+		currentScopedFunctionalities = append(currentScopedFunctionalities, eva.ScopedFunctionality{
+			Functionality:     scopedFunctionality.Functionality,
+			Scope:             scopedFunctionality.Scope,
+			RequiresElevation: scopedFunctionality.RequiresElevation,
+		})
 	}
 
 	_, detachErr := r.provider.evaClient.DetachFunctionalitiesFromRole(ctx, eva.DetachFunctionalitiesFromRoleRequest{
@@ -176,9 +197,19 @@ func (r rolePermissionsResource) Update(ctx context.Context, req tfsdk.UpdateRes
 		return
 	}
 
+	var scopedFunctionalitiesToUpdate []eva.ScopedFunctionality
+
+	for _, scopedFunctionality := range data.ScopedFunctionalities {
+		scopedFunctionalitiesToUpdate = append(scopedFunctionalitiesToUpdate, eva.ScopedFunctionality{
+			Functionality:     scopedFunctionality.Functionality.Value,
+			Scope:             scopedFunctionality.Scope.Value,
+			RequiresElevation: scopedFunctionality.RequiresElevation.Value,
+		})
+	}
+
 	_, attachErr := r.provider.evaClient.AttachFunctionalitiesToRole(ctx, eva.AttachFunctionalitiesToRoleRequest{
 		RoleID:                data.RoleID.Value,
-		ScopedFunctionalities: scopedFunctionalities,
+		ScopedFunctionalities: scopedFunctionalitiesToUpdate,
 	})
 
 	if attachErr != nil {

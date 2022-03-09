@@ -49,26 +49,20 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
-	// Check if provider is being configured in acceptance tests, otherwise use input values
-	if p.apiEndpoint == "" || p.apiToken == "" {
-		if data.Endpoint.Null {
-			resp.Diagnostics.AddError("No valid eva endpoint provided.", "A valid api endpoint is needed to authenticate on eva")
-			return
-		}
-
-		if data.Token.Null && (data.Username.Null || data.Password.Null) {
-			resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
-			return
-		}
-
-		p.apiEndpoint = data.Endpoint.Value
-		p.apiToken = data.Token.Value
+	if data.Endpoint.Null {
+		resp.Diagnostics.AddError("No valid eva endpoint provided.", "A valid api endpoint is needed to authenticate on eva")
+		return
 	}
 
-	p.evaClient = *eva.NewClient(p.apiEndpoint)
+	if data.Token.Null && (data.Username.Null || data.Password.Null) {
+		resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
+		return
+	}
 
-	if p.apiToken != "" {
-		p.evaClient.SetAuthorizationHeader(p.apiToken)
+	p.evaClient = *eva.NewClient(data.Endpoint.Value)
+
+	if !data.Token.Null {
+		p.evaClient.SetAuthorizationHeader(data.Token.Value)
 	} else {
 
 		err := p.evaClient.Login(ctx, eva.LoginCredentials{Username: data.Username.Value, Password: data.Password.Value})
@@ -128,12 +122,10 @@ func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostic
 	}, nil
 }
 
-func New(version string, apiEndpoint string, apiToken string) func() tfsdk.Provider {
+func New(version string) func() tfsdk.Provider {
 	return func() tfsdk.Provider {
 		return &provider{
-			version:     version,
-			apiEndpoint: apiEndpoint,
-			apiToken:    apiToken,
+			version: version,
 		}
 	}
 }
