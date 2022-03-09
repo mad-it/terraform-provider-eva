@@ -94,12 +94,13 @@ func (r organizationUnit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 	}
 
 	client_resp, err := r.provider.evaClient.CreateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
-		Name:         data.Name.Value,
-		PhoneNumber:  data.PhoneNumber.Value,
-		BackendID:    data.BackendId.Value,
-		EmailAddress: data.EmailAddress.Value,
-		ParentID:     data.ParentId.Value,
-		CurrencyID:   data.CurrencyId.Value,
+		Name:                data.Name.Value,
+		PhoneNumber:         data.PhoneNumber.Value,
+		BackendID:           data.BackendId.Value,
+		EmailAddress:        data.EmailAddress.Value,
+		ParentID:            data.ParentId.Value,
+		CurrencyID:          data.CurrencyId.Value,
+		CostPriceCurrencyID: "EUR",
 	})
 
 	if err != nil {
