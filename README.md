@@ -63,4 +63,4 @@ In order to run the full suite of Acceptance tests, follow these steps:
 - export EVA_API_TOKEN_TEST_ACC=(eva api token)
 - make testacc
 
-*Note:* Acceptance tests create real resources in Eva Instance.
+*Note:* Acceptance tests create real resources in Eva Instance, failed tests can lead in dangling resources, make sure everything is deleted after running test suite.
