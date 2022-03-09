@@ -37,7 +37,6 @@ jobs:
 
   # Run acceptance tests in a matrix with Terraform CLI versions
   test:
-    if: false
     name: Terraform Provider Acceptance Tests
     needs: build
     runs-on: ubuntu-latest
