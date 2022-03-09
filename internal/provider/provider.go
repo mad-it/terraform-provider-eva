@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -23,14 +24,6 @@ type provider struct {
 	// provider is built and ran locally, and "test" when running acceptance
 	// testing.
 	version string
-
-	// apiEndpoint is set to the provider on acceptance tests, it should be loaded
-	// with value from EVA_API_URL_TEST_ACC environment variable
-	apiEndpoint string
-
-	// apiToken is set to the provider on acceptance tests, it should be loaded
-	// with value from EVA_API_TOKEN_TEST_ACC environment variable
-	apiToken string
 }
 
 type providerData struct {
@@ -49,19 +42,29 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
+	// if unset, fallback to env
 	if data.Endpoint.Null {
+		data.Endpoint.Value = os.Getenv("EVA_API_URL")
+	}
+
+	if data.Token.Null {
+		data.Token.Value = os.Getenv("EVA_API_TOKEN")
+	}
+
+	// required if still unset
+	if data.Endpoint.Value == "" {
 		resp.Diagnostics.AddError("No valid eva endpoint provided.", "A valid api endpoint is needed to authenticate on eva")
 		return
 	}
 
-	if data.Token.Null && (data.Username.Null || data.Password.Null) {
+	if data.Token.Value == "" && (data.Username.Null || data.Password.Null) {
 		resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
 		return
 	}
 
 	p.evaClient = *eva.NewClient(data.Endpoint.Value)
 
-	if !data.Token.Null {
+	if data.Token.Value != "" {
 		p.evaClient.SetAuthorizationHeader(data.Token.Value)
 	} else {
 

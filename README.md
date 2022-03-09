@@ -59,8 +59,8 @@ To generate or update documentation, run `go generate`.
 
 In order to run the full suite of Acceptance tests, follow these steps:
 
-- export EVA_API_URL_TEST_ACC=(eva api url)
-- export EVA_API_TOKEN_TEST_ACC=(eva api token)
+- export EVA_API_URL=(eva api url)
+- export EVA_API_TOKEN=(eva api token)
 - make testacc
 
 *Note:* Acceptance tests create real resources in Eva Instance, failed tests can lead in dangling resources, make sure everything is deleted after running test suite.

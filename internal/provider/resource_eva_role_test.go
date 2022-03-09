@@ -14,7 +14,18 @@ func TestAccEvaRoleResource(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: testAccEvaRoleResourceConfig("my role", 1, "my_role"),
+				Config: testAccEvaRoleResourceConfig(
+					roleConfig{
+						name:     "my role",
+						userType: 1,
+						code:     "my_role",
+					},
+					roleScopedFunctionalityConfig{
+						functionality:      "Some functionality",
+						scope:              1,
+						requires_elevation: "false",
+					},
+				),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("eva_role.test", "name", "my role"),
 					resource.TestCheckResourceAttr("eva_role.test", "user_type", "1"),
@@ -29,7 +40,18 @@ func TestAccEvaRoleResource(t *testing.T) {
 			// },
 			// Update and Read testing
 			{
-				Config: testAccEvaRoleResourceConfig("another role", 2, "another_role"),
+				Config: testAccEvaRoleResourceConfig(
+					roleConfig{
+						name:     "another role",
+						userType: 2,
+						code:     "another_role",
+					},
+					roleScopedFunctionalityConfig{
+						functionality:      "Another functionality",
+						scope:              2,
+						requires_elevation: "true",
+					},
+				),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("eva_role.test", "name", "another role"),
 					resource.TestCheckResourceAttr("eva_role.test", "user_type", "2"),
@@ -41,7 +63,19 @@ func TestAccEvaRoleResource(t *testing.T) {
 	})
 }
 
-func testAccEvaRoleResourceConfig(roleName string, userType int64, code string) string {
+type roleConfig struct {
+	name     string
+	userType int64
+	code     string
+}
+
+type roleScopedFunctionalityConfig struct {
+	functionality      string
+	scope              int64
+	requires_elevation string
+}
+
+func testAccEvaRoleResourceConfig(roleConfig roleConfig, permissionConfig roleScopedFunctionalityConfig) string {
 	return fmt.Sprintf(`
 resource "eva_role" "test" {
 	name                   = "%s"
@@ -50,12 +84,9 @@ resource "eva_role" "test" {
 	scoped_functionalities = [
 		{
 			functionality      = "%s"
-			scope              = %s
+			scope              = %d
 			requires_elevation = %s
 		}
 	]
-}
-
-
-`, roleName, userType, code)
+}`, roleConfig.name, roleConfig.userType, roleConfig.code, permissionConfig.functionality, permissionConfig.scope, permissionConfig.requires_elevation)
 }
