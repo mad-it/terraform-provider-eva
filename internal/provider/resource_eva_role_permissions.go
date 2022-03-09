@@ -93,7 +93,7 @@ func (r rolePermissionsResource) Create(ctx context.Context, req tfsdk.CreateRes
 		return
 	}
 
-	data.ID = types.Int64{Value: 1}
+	data.ID = types.Int64{Value: data.RoleID.Value}
 
 	tflog.Trace(ctx, "Created role permissions.", client_resp)
 
@@ -185,7 +185,7 @@ func (r rolePermissionsResource) Update(ctx context.Context, req tfsdk.UpdateRes
 		return
 	}
 
-	data.ID = types.Int64{Value: 1}
+	data.ID = types.Int64{Value: data.RoleID.Value}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
