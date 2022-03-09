@@ -12,73 +12,6 @@ import (
 	"github.com/mad-it/terraform-provider-eva/internal/eva"
 )
 
-type organizationUnitTypes int64
-
-// This enum is copy pasted from the EVA SDK.
-const (
-	None organizationUnitTypes = 0
-	/**
-	 * A shop represents a physical store where products can be sold.
-	 */
-	Shop = 1
-	/**
-	 * A WebShop represents an online channel that allows delivery and reservation orders, but no carry out sales.
-	 */
-	WebShop = 2
-	/**
-	 * A container is an OrganizationUnit purely used to group some other OrganizationUnits to allow easier configuration.
-	 */
-	Container = 4
-	/**
-	 * Pickup can be combined with type Shop to allow reservation orders in the store.
-	 */
-	Pickup = 8
-	/**
-	 * A warehouse represents an OrganizationUnit where delivery orders can be shipped. The stock of these organizationunits can be made available for delivery orders from (web)shops.
-	 */
-	Warehouse = 16
-	/**
-	 * A Country is a special case of the Container type that represents a Country division in the OrganizationUnits structure.
-	 */
-	Country = 36
-	/**
-	 * A shop can be flagged as franchiser to allow some special flows.
-	 */
-	Franchise = 64
-	/**
-	 * The type EVA indicates that the shop is running EVA in the store. This will trigger Tasks etc that will not be generated for Shops that are not (yet) converted to running EVA. P/a non-EVA stores will receive an email for pickupordrs instead of a StockReservationTask.
-	 */
-	EVA = 128
-	/**
-	 * TestOrganizationUnit can be used to test some things in a production environment. This is not advised :warning:. These stores will be excluded from a lot of processes.
-	 */
-	TestOrganizationUnit = 256
-	/**
-	 * OrganizationUnits with DisableLogin cannot be selected in the Login process.
-	 */
-	DisableLogin = 512
-	/**
-	 * An external supplier is an organization that is not part of your internal organization structure but that you would still like to have available in EVA to for example create purchase Orders for to replenish your warehouse or stores.
-	 */
-	ExternalSupplier = 1024
-	/**
-	 * Some suppliers deliver their stock in consignment.
-	 */
-	Consignment = 3072
-	/**
-	 * For Business-to-business orders this type can be set. Orders in these organizationunits will be ex-tax.
-	 */
-	B2b = 4096
-	/**
-	 * A Region is a special case of the Container type that represents a subdivision under Country OrganizationUnits.
-	 */
-	Region = 8196
-	/**
-	 * An OrganizationUnit that is meant to be used by customers for returning Orders.
-	 */
-	ReturnsPortal = 16384
-)
-
 type organizationUnitType struct{}
 
 func (t organizationUnitType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
@@ -124,32 +57,31 @@ func (t organizationUnitType) GetSchema(ctx context.Context) (tfsdk.Schema, diag
 				Optional:            true,
 				Type:                types.StringType,
 			},
-			"types": {
-				MarkdownDescription: `Types of the shop. Possible values are:
-				- None
-				- Shop
-				- WebShop
-				- Container
-				- Pickup
-				- Warehouse
-				- Country
-				- Franchise
-				- EVA
-				- TestOrganizationUnit
-				- DisableLogin
-				- ExternalSupplier
-				- Consignment
-				- B2b
-				- Region
-				- ReturnsPortal
+			"type": {
+				MarkdownDescription: `Type of the shop. This type is a bit-wise operation.
+				- None = 0
+				- Shop = 1
+				- WebShop = 2
+				- Container = 4
+				- Pickup = 8
+				- Warehouse = 16
+				- Country = 36 (Is always a container 32+4)
+				- Franchise = 64
+				- EVA = 128
+				- TestOrganizationUnit = 256
+				- DisableLogin = 512
+				- ExternalSupplier = 1024
+				- Consignment = 3072 (Is always a ExternalSupplier 2048+1024)
+				- B2b = 4096
+				- Region = 8196 (Is always a container 8192+4)
+				- ReturnsPortal = 16384
 				`,
 				Optional: true,
-				Type:     types.SetType{},
+				Type:     types.Int64Type,
 			},
 			"address": {
 				MarkdownDescription: "Address information of the shop",
 				Optional:            true,
-				Type:                types.ObjectType{},
 				Attributes: tfsdk.SingleNestedAttributes(
 					map[string]tfsdk.Attribute{
 						"address1": {
@@ -207,6 +139,16 @@ func (t organizationUnitType) NewResource(ctx context.Context, in tfsdk.Provider
 	}, diags
 }
 
+type address struct {
+	Address1    string  `tfsdk:"address1"`
+	Address2    string  `tfsdk:"address2"`
+	HouseNumber string  `tfsdk:"house_number"`
+	ZipCode     string  `tfsdk:"zip_code"`
+	City        string  `tfsdk:"city"`
+	CountryID   string  `tfsdk:"country_id"`
+	Latitude    float64 `tfsdk:"latitude"`
+	Longitude   float64 `tfsdk:"longitude"`
+}
 type organizationUnitData struct {
 	Id           types.Int64  `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
@@ -215,6 +157,8 @@ type organizationUnitData struct {
 	CurrencyId   types.String `tfsdk:"currency_id"`
 	ParentId     types.Int64  `tfsdk:"parent_id"`
 	BackendId    types.String `tfsdk:"backend_id"`
+	Address      address      `tfsdk:"address"`
+	Type         types.Int64  `tfsdk:"type"`
 }
 
 type organizationUnit struct {
@@ -231,14 +175,25 @@ func (r organizationUnit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 		return
 	}
 
-	client_resp, err := r.provider.evaClient.CreateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
+	client_resp, err := r.provider.evaClient.CreateOrganizationUnit(ctx, eva.CreateOrganizationUnitRequest{
 		Name:                data.Name.Value,
 		PhoneNumber:         data.PhoneNumber.Value,
 		BackendID:           data.BackendId.Value,
 		EmailAddress:        data.EmailAddress.Value,
 		ParentID:            data.ParentId.Value,
 		CurrencyID:          data.CurrencyId.Value,
-		CostPriceCurrencyID: "EUR",
+		CostPriceCurrencyID: data.CurrencyId.Value,
+		Latitude:            data.Address.Latitude,
+		Longitude:           data.Address.Longitude,
+		Address: eva.Address{
+			Address1:    data.Address.Address1,
+			Address2:    data.Address.Address2,
+			HouseNumber: data.Address.HouseNumber,
+			ZipCode:     data.Address.ZipCode,
+			City:        data.Address.City,
+			CountryID:   data.Address.CountryID,
+		},
+		Type: data.Type.Value,
 	})
 
 	if err != nil {
@@ -280,6 +235,17 @@ func (r organizationUnit) Read(ctx context.Context, req tfsdk.ReadResourceReques
 	data.PhoneNumber = types.String{Value: client_resp.PhoneNumber}
 	data.Name = types.String{Value: client_resp.Name}
 	data.ParentId = types.Int64{Value: client_resp.ParentID}
+	data.Address = address{
+		Address1:    client_resp.Address.Address1,
+		Address2:    client_resp.Address.Address2,
+		HouseNumber: client_resp.Address.HouseNumber,
+		ZipCode:     client_resp.Address.ZipCode,
+		City:        client_resp.Address.City,
+		CountryID:   client_resp.Address.CountryID,
+		Latitude:    client_resp.Latitude,
+		Longitude:   client_resp.Longitude,
+	}
+	data.Type = types.Int64{Value: client_resp.Type}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -295,14 +261,23 @@ func (r organizationUnit) Update(ctx context.Context, req tfsdk.UpdateResourceRe
 		return
 	}
 
-	_, err := r.provider.evaClient.UpdateOrganizationUnit(ctx, eva.CreateOrUpdateOrganizationUnitRequest{
-		ID:           data.Id.Value,
-		Name:         data.Name.Value,
-		PhoneNumber:  data.PhoneNumber.Value,
-		EmailAddress: data.EmailAddress.Value,
-		ParentID:     data.ParentId.Value,
-		CurrencyID:   data.CurrencyId.Value,
-		BackendID:    data.BackendId.Value,
+	_, err := r.provider.evaClient.UpdateOrganizationUnit(ctx, eva.UpdateOrganizationUnitRequest{
+		ID:                  data.Id.Value,
+		Name:                data.Name.Value,
+		PhoneNumber:         data.PhoneNumber.Value,
+		EmailAddress:        data.EmailAddress.Value,
+		CostPriceCurrencyID: data.CurrencyId.Value,
+		Latitude:            data.Address.Latitude,
+		Longitude:           data.Address.Longitude,
+		Address: eva.Address{
+			Address1:    data.Address.Address1,
+			Address2:    data.Address.Address2,
+			HouseNumber: data.Address.HouseNumber,
+			ZipCode:     data.Address.ZipCode,
+			City:        data.Address.City,
+			CountryID:   data.Address.CountryID,
+		},
+		Type: data.Type.Value,
 	})
 
 	if err != nil {
