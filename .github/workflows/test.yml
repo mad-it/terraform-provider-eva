@@ -6,10 +6,10 @@ name: Tests
 on:
   pull_request:
     paths-ignore:
-      - 'README.md'
+      - "README.md"
   push:
     paths-ignore:
-      - 'README.md'
+      - "README.md"
 
 # Testing only needs permissions to read the repository contents.
 permissions:
@@ -19,7 +19,7 @@ permissions:
 env:
   # Go language version to use for building. This value should also be updated
   # in the release workflow if changed.
-  GO_VERSION: '1.17'
+  GO_VERSION: "1.17"
 
 jobs:
   # Ensure project builds before running testing matrix
@@ -37,7 +37,6 @@ jobs:
 
   # Run acceptance tests in a matrix with Terraform CLI versions
   test:
-    if: false
     name: Terraform Provider Acceptance Tests
     needs: build
     runs-on: ubuntu-latest
@@ -47,8 +46,8 @@ jobs:
       matrix:
         # list whatever Terraform versions here you would like to support
         terraform:
-          - '1.0.*'
-          - '1.1.*'
+          - "1.0.*"
+          - "1.1.*"
     steps:
       - uses: actions/setup-go@v2
         with:
@@ -61,5 +60,7 @@ jobs:
       - run: go mod download
       - env:
           TF_ACC: "1"
+          EVA_API_URL: "temp-value"
+          EVA_API_TOKEN: "temp-value"
         run: go test -v -cover ./internal/provider/
         timeout-minutes: 10
