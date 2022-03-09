@@ -4,7 +4,7 @@ resource "eva_role_permission" "example_permission" {
   scoped_functionalities = jsonencode([
     {
       Functionality     = "FunctionalityName",
-      Scope             = 1
+      Scope             = 1,
       RequiresElevation = false
     }
   ])

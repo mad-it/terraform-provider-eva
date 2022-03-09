@@ -21,6 +21,10 @@ func (t rolePermissionsType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.
 		MarkdownDescription: "Eva role permissions configuration.",
 
 		Attributes: map[string]tfsdk.Attribute{
+			"id": {
+				Type:     types.Int64Type,
+				Computed: true,
+			},
 			"role_id": {
 				MarkdownDescription: "ID of the role which permissions will be attached to",
 				Required:            true,
@@ -51,6 +55,7 @@ type rolePermissionsResource struct {
 }
 
 type inputRolePermissionsData struct {
+	ID                    types.Int64  `tfsdk:"id"`
 	RoleID                types.Int64  `tfsdk:"role_id"`
 	ScopedFunctionalities types.String `tfsdk:"scoped_functionalities"`
 }
@@ -87,6 +92,8 @@ func (r rolePermissionsResource) Create(ctx context.Context, req tfsdk.CreateRes
 		resp.Diagnostics.AddError("Creating role permissions failed.", fmt.Sprintf("Unable to create role permisions, got error: %s", err))
 		return
 	}
+
+	data.ID = types.Int64{Value: 1}
 
 	tflog.Trace(ctx, "Created role permissions.", client_resp)
 
@@ -177,6 +184,8 @@ func (r rolePermissionsResource) Update(ctx context.Context, req tfsdk.UpdateRes
 		resp.Diagnostics.AddError("Updating role permissions failed.", fmt.Sprintf("Unable to attach new role permissions, got error: %s", detachErr))
 		return
 	}
+
+	data.ID = types.Int64{Value: 1}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
