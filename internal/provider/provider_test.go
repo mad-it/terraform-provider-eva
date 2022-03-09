@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -19,10 +18,7 @@ var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServe
 }
 
 func testAccPreCheck(t *testing.T) {
-	if v := os.Getenv("EVA_API_URL_TEST_ACC"); v == "" {
-		t.Fatal("EVA_API_URL_TEST_ACC must be set for acceptance tests")
-	}
-	if v := os.Getenv("EVA_API_TOKEN_TEST_ACC"); v == "" {
-		t.Fatal("EVA_API_TOKEN_TEST_ACC must be set for acceptance tests")
-	}
+	// You can add code here to run prior to any test case execution, for example assertions
+	// about the appropriate environment variables being set are common to see in a pre-check
+	// function.
 }
