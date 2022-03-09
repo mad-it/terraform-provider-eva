@@ -26,7 +26,6 @@ type Address struct {
 }
 
 type CreateOrganizationUnitRequest struct {
-	ID                  int64   `json:"ID,omitempty"`
 	Name                string  `json:"Name,omitempty"`
 	PhoneNumber         string  `json:"PhoneNumber,omitempty"`
 	EmailAddress        string  `json:"EmailAddress,omitempty"`
