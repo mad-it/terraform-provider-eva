@@ -64,7 +64,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 
 	p.evaClient = *eva.NewClient(data.Endpoint.Value)
 
-	if !data.Token.Null {
+	if data.Token.Value != "" {
 		p.evaClient.SetAuthorizationHeader(data.Token.Value)
 	} else {
 
