@@ -135,6 +135,16 @@ func (r openIdProvider) Create(ctx context.Context, req tfsdk.CreateResourceRequ
 
 	tflog.Trace(ctx, "Created an openIdProvider.")
 
+	if data.Primary.Value {
+		_, err := r.provider.evaClient.SetPrimaryOpenIDProvider(ctx, eva.SetPrimaryOpenIDProviderRequest{
+			ID: client_resp.ID,
+		})
+
+		if err != nil {
+			resp.Diagnostics.AddWarning("Setting primary open Id provider failed.", fmt.Sprintf("Unable to set primary open Id provider, got error: %s", err))
+		}
+	}
+
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -169,6 +179,7 @@ func (r openIdProvider) Read(ctx context.Context, req tfsdk.ReadResourceRequest,
 	data.NicknameClaim = types.String{Value: client_resp.NicknameClaim}
 	data.UserType = types.Int64{Value: client_resp.UserType}
 	data.Name = types.String{Value: client_resp.Name}
+	data.Primary = types.Bool{Value: client_resp.Primary}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -201,6 +212,16 @@ func (r openIdProvider) Update(ctx context.Context, req tfsdk.UpdateResourceRequ
 	if err != nil {
 		resp.Diagnostics.AddError("Updating openIdProvider unit failed.", fmt.Sprintf("Unable to update openIdProvider, got error: %s", err))
 		return
+	}
+
+	if data.Primary.Value {
+		_, err := r.provider.evaClient.SetPrimaryOpenIDProvider(ctx, eva.SetPrimaryOpenIDProviderRequest{
+			ID: data.ID.Value,
+		})
+
+		if err != nil {
+			resp.Diagnostics.AddWarning("Setting primary open Id provider failed.", fmt.Sprintf("Unable to set primary open Id provider, got error: %s", err))
+		}
 	}
 
 	diags = resp.State.Set(ctx, &data)

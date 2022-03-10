@@ -10,10 +10,11 @@ import (
 )
 
 const (
-	getOpenIDProviderPath    = "/api/authentication/openid/GetOpenIDProviderByID"
-	createOpenIDProviderPath = "/api/authentication/openid/CreateOpenIDProvider"
-	updateOpenIDProviderPath = "/api/authentication/openid/UpdateOpenIDProvider"
-	deleteOpenIDProviderPath = "/api/authentication/openid/DeleteOpenIDProvider"
+	getOpenIDProviderPath        = "/api/authentication/openid/GetOpenIDProviderByID"
+	createOpenIDProviderPath     = "/api/authentication/openid/CreateOpenIDProvider"
+	updateOpenIDProviderPath     = "/api/authentication/openid/UpdateOpenIDProvider"
+	deleteOpenIDProviderPath     = "/api/authentication/openid/DeleteOpenIDProvider"
+	setPrimaryOpenIDProviderPath = "/api/authentication/openid/SetPrimaryOpenIDProvider"
 )
 
 type CreateOpenIDProviderRequest struct {
@@ -75,6 +76,7 @@ type GetOpenIDProviderResponse struct {
 	Name              string `json:"Name,omitempty"`
 	NicknameClaim     string `json:"NicknameClaim,omitempty"`
 	UserType          int64  `json:"UserType"`
+	Primary           bool   `json:"Primary"`
 }
 
 func (c *Client) GetOpenIDProvider(ctx context.Context, req GetOpenIDProviderRequest) (*GetOpenIDProviderResponse, error) {
@@ -174,6 +176,41 @@ func (c *Client) DeleteOpenIDProvider(ctx context.Context, req DeleteOpenIDProvi
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
+	}
+
+	return &jsonResp, nil
+}
+
+type SetPrimaryOpenIDProviderRequest struct {
+	ID int64 `json:"ID"`
+}
+
+type SetPrimaryOpenIDProviderResponse struct{}
+
+func (c *Client) SetPrimaryOpenIDProvider(ctx context.Context, req SetPrimaryOpenIDProviderRequest) (*SetPrimaryOpenIDProviderResponse, error) {
+
+	resp, err := c.restClient.R().
+		SetBody(req).
+		Post(setPrimaryOpenIDProviderPath)
+
+	if err != nil {
+		tflog.Error(ctx, "An network error ocurred.", err)
+
+		return nil, err
+	}
+
+	if resp.StatusCode() != 200 {
+		tflog.Info(ctx, "Request failed", "Status code", resp.StatusCode(), "body", resp.String())
+
+		return nil, errors.New("Request failed.")
+	}
+
+	tflog.Debug(ctx, "Request info", "Status code", resp.StatusCode(), "body", resp.String())
+
+	var jsonResp SetPrimaryOpenIDProviderResponse
+	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
+
+		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Error: %s \n Received: %s", err, resp.String()))
 	}
 
 	return &jsonResp, nil
