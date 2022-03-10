@@ -186,27 +186,31 @@ func (r openIdProvider) Read(ctx context.Context, req tfsdk.ReadResourceRequest,
 }
 
 func (r openIdProvider) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
-	var data openIdProviderTypeData
+	var plan openIdProviderTypeData
+	var state openIdProviderTypeData
 
-	diags := req.Plan.Get(ctx, &data)
+	stateDiags := req.State.Get(ctx, &state)
+	diags := req.Plan.Get(ctx, &plan)
+
 	resp.Diagnostics.Append(diags...)
+	resp.Diagnostics.Append(stateDiags...)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	_, err := r.provider.evaClient.UpdateOpenIDProvider(ctx, eva.UpdateOpenIDProviderRequest{
-		ID:                data.ID.Value,
-		BaseUrl:           data.BaseUrl.Value,
-		ClientID:          data.ClientID.Value,
-		CreateUsers:       data.CreateUsers.Value,
-		EmailAddressClaim: data.EmailAddressClaim.Value,
-		Enabled:           data.Enabled.Value,
-		FirstNameClaim:    data.FirstNameClaim.Value,
-		LastNameClaim:     data.LastNameClaim.Value,
-		Name:              data.Name.Value,
-		NicknameClaim:     data.NicknameClaim.Value,
-		UserType:          data.UserType.Value,
+		ID:                plan.ID.Value,
+		BaseUrl:           plan.BaseUrl.Value,
+		ClientID:          plan.ClientID.Value,
+		CreateUsers:       plan.CreateUsers.Value,
+		EmailAddressClaim: plan.EmailAddressClaim.Value,
+		Enabled:           plan.Enabled.Value,
+		FirstNameClaim:    plan.FirstNameClaim.Value,
+		LastNameClaim:     plan.LastNameClaim.Value,
+		Name:              plan.Name.Value,
+		NicknameClaim:     plan.NicknameClaim.Value,
+		UserType:          plan.UserType.Value,
 	})
 
 	if err != nil {
@@ -214,9 +218,9 @@ func (r openIdProvider) Update(ctx context.Context, req tfsdk.UpdateResourceRequ
 		return
 	}
 
-	if data.Primary.Value {
+	if state.Primary.Value != plan.Primary.Value && plan.Primary.Value {
 		_, err := r.provider.evaClient.SetPrimaryOpenIDProvider(ctx, eva.SetPrimaryOpenIDProviderRequest{
-			ID: data.ID.Value,
+			ID: plan.ID.Value,
 		})
 
 		if err != nil {
@@ -224,7 +228,7 @@ func (r openIdProvider) Update(ctx context.Context, req tfsdk.UpdateResourceRequ
 		}
 	}
 
-	diags = resp.State.Set(ctx, &data)
+	diags = resp.State.Set(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 }
 
