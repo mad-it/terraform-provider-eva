@@ -10,4 +10,5 @@ resource "eva_open_id_provider" "provider" {
   nickname_claim      = "name"
   user_type           = 1
   create_users        = true
+  primary             = true
 }
