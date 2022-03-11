@@ -74,6 +74,7 @@ func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceT
 		"eva_organization_unit": organizationUnitType{},
 		"eva_setting":           settingType{},
 		"eva_cookbook":          cookbookType{},
+		"eva_stencil":           stencilType{},
 	}, nil
 }
 
