@@ -231,7 +231,6 @@ func (s stencil) Create(ctx context.Context, req tfsdk.CreateResourceRequest, re
 		return
 	}
 
-	// TODO: do we need an ID or some unique identifier for this resource?
 	clientResponse, err := s.provider.evaClient.CreateMessageTemplate(ctx, eva.CreateMessageTemplateRequest{
 		Name:               data.Name.Value,
 		OrganizationUnitID: data.OrganizationUnitID.Value,
