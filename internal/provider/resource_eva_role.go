@@ -60,11 +60,19 @@ func (t roleProviderType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 						},
 						"requires_elevation": {
 							MarkdownDescription: "whether functionality requires elevation or not",
-							Required:            true,
+							Optional:            true,
+							Computed:            true,
 							Type:                types.BoolType,
+							PlanModifiers: []tfsdk.AttributePlanModifier{
+								boolDefaultModifier{
+									Default: false,
+								},
+							},
 						},
 					},
-					tfsdk.ListNestedAttributesOptions{},
+					tfsdk.ListNestedAttributesOptions{
+						MinItems: 1,
+					},
 				),
 			},
 		},
