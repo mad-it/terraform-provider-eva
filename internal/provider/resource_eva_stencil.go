@@ -68,9 +68,13 @@ func (t stencilType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnost
 				Type:                types.StringType,
 			},
 			"type": {
-				MarkdownDescription: "Type of the stencil",
-				Optional:            true,
-				Type:                types.Int64Type,
+				MarkdownDescription: `Type of the stencil:
+				- Template = 1,
+				- Partial = 2,
+				- Layout = 3
+				`,
+				Optional: true,
+				Type:     types.Int64Type,
 			},
 			"layout": {
 				MarkdownDescription: "Type of the stencil",
@@ -78,9 +82,15 @@ func (t stencilType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnost
 				Type:                types.StringType,
 			},
 			"destination": {
-				MarkdownDescription: "Destination of the stencil",
-				Optional:            true,
-				Type:                types.Int64Type,
+				MarkdownDescription: `Destination of the stencil:
+				- Mail = 1,
+				- Sms = 2,
+				- Pdf = 4,
+				- Thermal = 8,
+				- Notification = 16
+				`,
+				Optional: true,
+				Type:     types.Int64Type,
 			},
 			"paper_properties": {
 				MarkdownDescription: "Paper's properties block configuration",
@@ -98,14 +108,30 @@ func (t stencilType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnost
 							Type:                types.BoolType,
 						},
 						"format": {
-							MarkdownDescription: "Paper format",
-							Optional:            true,
-							Type:                types.Int64Type,
+							MarkdownDescription: `Paper format:
+							- A3 = 1,
+							- A4 = 2,
+							- A5 = 3,
+							- Legal = 4,
+							- Letter = 5,
+							- Tabloid = 6,
+							- Auto = 7,
+							- Ledger = 8,
+							- A0 = 9,
+							- A1 = 10,
+							- A2 = 11,
+							- A6 = 12
+							`,
+							Optional: true,
+							Type:     types.Int64Type,
 						},
 						"orientation": {
-							MarkdownDescription: "Paper orientation",
-							Optional:            true,
-							Type:                types.Int64Type,
+							MarkdownDescription: `Paper orientation:
+							- Portrait = 1,
+							- Landscape = 2
+							`,
+							Optional: true,
+							Type:     types.Int64Type,
 						},
 						"thermal_printer_template_type": {
 							MarkdownDescription: "Paper orientation",
