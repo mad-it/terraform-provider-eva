@@ -13,9 +13,9 @@ import (
 	"github.com/mad-it/terraform-provider-eva/internal/eva"
 )
 
-type roleProviderType struct{}
+type roleType struct{}
 
-func (t roleProviderType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
+func (t roleType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		MarkdownDescription: "Eva role configuration.",
 
@@ -79,7 +79,7 @@ func (t roleProviderType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 	}, nil
 }
 
-func (t roleProviderType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
+func (t roleType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
 	return role{
