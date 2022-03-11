@@ -55,12 +55,8 @@ To compile the provider, run `go install`. This will build the provider and put 
 
 To generate or update documentation, run `go generate`.
 
-## Running acceptance tests
+In order to run the full suite of Acceptance tests, run `make testacc`.
 
-In order to run the full suite of Acceptance tests, follow these steps:
-
-- export EVA_API_URL=(eva api url)
-- export EVA_API_TOKEN=(eva api token)
-- make testacc
-
-*Note:* Acceptance tests create real resources in Eva Instance, failed tests can lead in dangling resources, make sure everything is deleted after running test suite.
+```shell
+make testacc
+```

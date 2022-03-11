@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
@@ -42,29 +41,14 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 		return
 	}
 
-	// if unset, fallback to env
-	if data.Endpoint.Null {
-		data.Endpoint.Value = os.Getenv("EVA_API_URL")
-	}
-
-	if data.Token.Null {
-		data.Token.Value = os.Getenv("EVA_API_TOKEN")
-	}
-
-	// required if still unset
-	if data.Endpoint.Value == "" {
-		resp.Diagnostics.AddError("No valid eva endpoint provided.", "A valid api endpoint is needed to authenticate on eva")
-		return
-	}
-
-	if data.Token.Value == "" && (data.Username.Null || data.Password.Null) {
+	if data.Token.Null && (data.Username.Null || data.Password.Null) {
 		resp.Diagnostics.AddError("No valid credentials provided.", "Both token and username/password are not filed. Please provide one of these.")
 		return
 	}
 
 	p.evaClient = *eva.NewClient(data.Endpoint.Value)
 
-	if data.Token.Value != "" {
+	if data.Token.Null {
 		p.evaClient.SetAuthorizationHeader(data.Token.Value)
 	} else {
 
