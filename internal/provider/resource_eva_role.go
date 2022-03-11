@@ -82,12 +82,12 @@ func (t roleProviderType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Dia
 func (t roleProviderType) NewResource(ctx context.Context, in tfsdk.Provider) (tfsdk.Resource, diag.Diagnostics) {
 	provider, diags := convertProviderType(in)
 
-	return roleProdiver{
+	return role{
 		provider: provider,
 	}, diags
 }
 
-type roleProdiver struct {
+type role struct {
 	provider provider
 }
 
@@ -129,7 +129,7 @@ func (s roleProviderTypeData) setListOfFunctionalities(scopedFunctionalities []e
 	}
 }
 
-func (r roleProdiver) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
+func (r role) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	var data roleProviderTypeData
 
 	diags := req.Config.Get(ctx, &data)
@@ -152,23 +152,30 @@ func (r roleProdiver) Create(ctx context.Context, req tfsdk.CreateResourceReques
 
 	data.ID = types.Int64{Value: createdRole.ID}
 
+	diags = resp.State.Set(ctx, &roleProviderTypeData{
+		ID:       types.Int64{Value: data.ID.Value},
+		Name:     types.String{Value: data.Name.Value},
+		UserType: types.Int64{Value: data.UserType.Value},
+		Code:     types.String{Value: data.Code.Value},
+	})
+
+	tflog.Trace(ctx, "Created a new role.")
+
 	_, attachPermissionsToRoleErr := r.provider.evaClient.AttachFunctionalitiesToRole(ctx, eva.AttachFunctionalitiesToRoleRequest{
 		RoleID:                data.ID.Value,
 		ScopedFunctionalities: data.getListOfFunctionalities(),
 	})
 
 	if attachPermissionsToRoleErr != nil {
-		resp.Diagnostics.AddError("Creating role permissions failed.", fmt.Sprintf("Unable to create role permisions, got error: %s", attachPermissionsToRoleErr))
+		resp.Diagnostics.AddError("Creating role permissions failed. Please try to apply changes again.", fmt.Sprintf("Unable to create role permisions, got error: %s", attachPermissionsToRoleErr))
 		return
 	}
-
-	tflog.Trace(ctx, "Created a new role.")
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r roleProdiver) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+func (r role) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
 	var data roleProviderTypeData
 
 	diags := req.State.Get(ctx, &data)
@@ -196,7 +203,7 @@ func (r roleProdiver) Read(ctx context.Context, req tfsdk.ReadResourceRequest, r
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r roleProdiver) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+func (r role) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
 	var data roleProviderTypeData
 
 	diags := req.Plan.Get(ctx, &data)
@@ -218,12 +225,19 @@ func (r roleProdiver) Update(ctx context.Context, req tfsdk.UpdateResourceReques
 		return
 	}
 
+	diags = resp.State.Set(ctx, &roleProviderTypeData{
+		ID:       types.Int64{Value: data.ID.Value},
+		Name:     types.String{Value: data.Name.Value},
+		UserType: types.Int64{Value: data.UserType.Value},
+		Code:     types.String{Value: data.Code.Value},
+	})
+
 	roleData, getRoleErr := r.provider.evaClient.GetRole(ctx, eva.GetRoleRequest{
 		ID: data.ID.Value,
 	})
 
 	if getRoleErr != nil {
-		resp.Diagnostics.AddError("Updating role permissions failed.", fmt.Sprintf("Unable to get role, got error: %s", getRoleErr))
+		resp.Diagnostics.AddError("Getting role permissions data failed.", fmt.Sprintf("Unable to get role, got error: %s", getRoleErr))
 		return
 	}
 
@@ -251,7 +265,7 @@ func (r roleProdiver) Update(ctx context.Context, req tfsdk.UpdateResourceReques
 	resp.Diagnostics.Append(diags...)
 }
 
-func (r roleProdiver) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+func (r role) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
 	var data roleProviderTypeData
 
 	diags := req.State.Get(ctx, &data)
@@ -273,6 +287,6 @@ func (r roleProdiver) Delete(ctx context.Context, req tfsdk.DeleteResourceReques
 	resp.State.RemoveResource(ctx)
 }
 
-func (r roleProdiver) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+func (r role) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
 	tfsdk.ResourceImportStatePassthroughID(ctx, tftypes.NewAttributePath().WithAttributeName("id"), req, resp)
 }
