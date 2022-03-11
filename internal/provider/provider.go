@@ -33,6 +33,7 @@ type providerData struct {
 }
 
 func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderRequest, resp *tfsdk.ConfigureProviderResponse) {
+
 	var data providerData
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -48,7 +49,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 
 	p.evaClient = *eva.NewClient(data.Endpoint.Value)
 
-	if data.Token.Null {
+	if !data.Token.Null {
 		p.evaClient.SetAuthorizationHeader(data.Token.Value)
 	} else {
 
