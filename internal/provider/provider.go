@@ -72,6 +72,7 @@ func (p *provider) Configure(ctx context.Context, req tfsdk.ConfigureProviderReq
 func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceType, diag.Diagnostics) {
 	return map[string]tfsdk.ResourceType{
 		"eva_organization_unit": organizationUnitType{},
+		"eva_role":              roleType{},
 		"eva_setting":           settingType{},
 		"eva_cookbook":          cookbookType{},
 		"eva_stencil":           stencilType{},
@@ -88,7 +89,7 @@ func (p *provider) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnostic
 		Attributes: map[string]tfsdk.Attribute{
 			"endpoint": {
 				MarkdownDescription: "The base URL of the EVA API.",
-				Required:            true,
+				Optional:            true,
 				Type:                types.StringType,
 			},
 			"token": {
