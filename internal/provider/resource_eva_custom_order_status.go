@@ -70,7 +70,6 @@ func (r customOrderStatus) Create(ctx context.Context, req tfsdk.CreateResourceR
 		return
 	}
 
-	// TODO: do we need an ID or some unique identifier for this resource?
 	clientResponse, err := r.provider.evaClient.CreateCustomOrderStatus(ctx, eva.CreateCustomOrderStatusRequest{
 		Name:        data.Name.Value,
 		Description: data.Description.Value,
