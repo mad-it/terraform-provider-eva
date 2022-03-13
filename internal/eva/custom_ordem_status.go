@@ -18,7 +18,7 @@ const (
 
 type CreateCustomOrderStatusRequest struct {
 	Name        string `json:"Name"`
-	Description string `json:"Description"`
+	Description string `json:"Description,omitempty"`
 }
 
 type CreateCustomOrderStatusResponse struct {

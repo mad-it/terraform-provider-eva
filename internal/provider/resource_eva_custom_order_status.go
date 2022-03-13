@@ -35,7 +35,7 @@ func (t customOrderStatusType) GetSchema(ctx context.Context) (tfsdk.Schema, dia
 			},
 			"description": {
 				MarkdownDescription: "description of the status.",
-				Required:            true,
+				Optional:            true,
 				Type:                types.StringType,
 			},
 		},
