@@ -117,7 +117,7 @@ func (r customOrderStatus) Read(ctx context.Context, req tfsdk.ReadResourceReque
 	}
 
 	if !customOrderStatusFound {
-		resp.Diagnostics.AddError("Could not find custom order status data.", fmt.Sprintf("Unable to get custom order status, got error: %s", err))
+		resp.Diagnostics.AddError("Could not find custom order status data.", fmt.Sprintf("Unable to get custom order status"))
 		return
 	}
 
