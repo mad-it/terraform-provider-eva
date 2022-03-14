@@ -16,6 +16,8 @@ const (
 	deleteRolePath                    = "/api/core/management/DeleteRole"
 	attachFunctionalitiesToRolePath   = "/api/core/management/AttachFunctionalitiesToRole"
 	detachFunctionalitiesFromRolePath = "/api/core/management/DetachFunctionalitiesFromRole"
+	getUserRolePath                   = "/api/core/management/GetUserRoles"
+	setUserRolePath                   = "/api/core/management/SetUserRoles"
 )
 
 type CreateRoleRequest struct {
@@ -243,7 +245,7 @@ type GetUserRoleResponse struct {
 func (c *Client) GetUserRole(ctx context.Context, req GetUserRoleRequest) (*GetUserRoleResponse, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
-		Post(detachFunctionalitiesFromRolePath)
+		Post(getUserRolePath)
 
 	if err != nil {
 		tflog.Error(ctx, "An network error ocurred.", err)
@@ -282,7 +284,7 @@ type SetUserRoleRequest struct {
 func (c *Client) SetUserRole(ctx context.Context, req SetUserRoleRequest) (*EmptyResponse, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
-		Post(detachFunctionalitiesFromRolePath)
+		Post(setUserRolePath)
 
 	if err != nil {
 		tflog.Error(ctx, "An network error ocurred.", err)

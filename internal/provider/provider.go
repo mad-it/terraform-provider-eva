@@ -78,6 +78,7 @@ func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceT
 		"eva_stencil":             stencilType{},
 		"eva_open_id_provider":    openIdProviderType{},
 		"eva_custom_order_status": customOrderStatusType{},
+		"eva_employee":            employeeType{},
 	}, nil
 }
 

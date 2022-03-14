@@ -101,7 +101,7 @@ type employee struct {
 }
 
 func makeEvaUserRoles(userRoles []roleTypeData) []eva.RoleOrganizationUnitSet {
-	var roles = make([]eva.RoleOrganizationUnitSet, len(userRoles))
+	var roles = make([]eva.RoleOrganizationUnitSet, 0)
 
 	for _, userRole := range userRoles {
 		roles = append(roles, eva.RoleOrganizationUnitSet{
@@ -115,7 +115,7 @@ func makeEvaUserRoles(userRoles []roleTypeData) []eva.RoleOrganizationUnitSet {
 }
 
 func makeTerraformUserRoles(userRoles []eva.UserRole) []roleTypeData {
-	var roles = make([]roleTypeData, len(userRoles))
+	var roles = make([]roleTypeData, 0)
 
 	for _, userRole := range userRoles {
 		roles = append(roles, roleTypeData{
