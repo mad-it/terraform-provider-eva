@@ -29,3 +29,5 @@ func NewClient(apiURL string) *Client {
 func (c *Client) SetAuthorizationHeader(token string) {
 	c.restClient.SetHeader("authorization", token)
 }
+
+type EmptyResponse struct {}

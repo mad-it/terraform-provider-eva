@@ -9,26 +9,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
+type CreateEmployeeResult int
+
 const (
-	createCustomOrderStatusPath = "/api/core/CreateCustomOrderStatus"
-	listCustomOrderStatusPath   = "/api/core/ListCustomOrderStatus"
-	updateCustomOrderStatusPath = "/api/core/UpdateCustomOrderStatus"
-	deleteCustomOrderStatusPath = "/api/core/DeleteCustomOrderStatus"
+	CreatedNewUser CreateEmployeeResult = iota
+	UpgradedExistingUser
+	UpdatedExistingUser
+
+	getUserPath        = "/api/core/GetUser"
+	createEmployeePath = "/api/core/management/CreateEmployeeUser"
+	updateUserPath     = "/api/core/UpdateUser"
+	deleteUserPath     = "/api/core/DeleteUser"
 )
 
-type CreateCustomOrderStatusRequest struct {
-	Name        string `json:"Name"`
-	Description string `json:"Description,omitempty"`
+type CreateEmployeeUserRequest struct {
+	FirstName    string `json:"FirstName"`
+	LastName     string `json:"LastName"`
+	EmailAddress string `json:"EmailAddress"`
+	Password     string `json:"Password"`
 }
 
-type CreateCustomOrderStatusResponse struct {
-	ID int64
+type CreateEmployeeUserResponse struct {
+	ID     int64                `json:"UserID"`
+	Result CreateEmployeeResult `json:"Result"`
 }
 
-func (c *Client) CreateCustomOrderStatus(ctx context.Context, req CreateCustomOrderStatusRequest) (*CreateCustomOrderStatusResponse, error) {
+func (c *Client) CreateEmployee(ctx context.Context, req CreateEmployeeUserRequest) (*CreateEmployeeUserResponse, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
-		Post(createCustomOrderStatusPath)
+		Post(createEmployeePath)
 
 	if err != nil {
 		tflog.Error(ctx, "An network error ocurred.", err)
@@ -42,7 +51,7 @@ func (c *Client) CreateCustomOrderStatus(ctx context.Context, req CreateCustomOr
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp CreateCustomOrderStatusResponse
+	var jsonResp CreateEmployeeUserResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
@@ -51,19 +60,22 @@ func (c *Client) CreateCustomOrderStatus(ctx context.Context, req CreateCustomOr
 	return &jsonResp, nil
 }
 
-type CustomOrderStatus struct {
-	ID          int64  `json:"ID"`
-	Name        string `json:"Name"`
-	Description string `json:"Description,omitempty"`
+type GetUserRequest struct {
+	ID int64 `json:"ID"`
 }
 
-type ListCustomOrderStatusResponse struct {
-	Result []CustomOrderStatus `json:"Result"`
+type GetEmployeeResponse struct {
+	ID           int64  `json:"ID"`
+	FirstName    string `json:"FirstName"`
+	LastName     string `json:"LastName"`
+	EmailAddress string `json:"EmailAddress"`
 }
 
-func (c *Client) ListCustomOrderStatus(ctx context.Context) (*ListCustomOrderStatusResponse, error) {
+func (c *Client) GetUser(ctx context.Context, req GetUserRequest) (*GetEmployeeResponse, error) {
+
 	resp, err := c.restClient.R().
-		Post(listCustomOrderStatusPath)
+		SetBody(req).
+		Post(getUserPath)
 
 	if err != nil {
 		tflog.Error(ctx, "An network error ocurred.", err)
@@ -79,24 +91,26 @@ func (c *Client) ListCustomOrderStatus(ctx context.Context) (*ListCustomOrderSta
 
 	tflog.Debug(ctx, "Request info", "Status code", resp.StatusCode(), "body", resp.String())
 
-	var jsonResp ListCustomOrderStatusResponse
+	var jsonResp GetEmployeeResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
-		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
+
+		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Error: %s \n Received: %s", err, resp.String()))
 	}
 
 	return &jsonResp, nil
 }
 
-type UpdateCustomOrderStatusRequest struct {
-	ID          int64  `json:"ID"`
-	Name        string `json:"Name"`
-	Description string `json:"Description,omitempty"`
+type UpdateUserRequest struct {
+	ID           int64  `json:"ID"`
+	FirstName    string `json:"FirstName,omitempty"`
+	LastName     string `json:"LastName,omitempty"`
+	EmailAddress string `json:"EmailAddress,omitempty"`
 }
 
-func (c *Client) UpdateCustomOrderStatus(ctx context.Context, req UpdateCustomOrderStatusRequest) (*EmptyResponse, error) {
+func (c *Client) UpdateUser(ctx context.Context, req UpdateUserRequest) (*EmptyResponse, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
-		Post(updateCustomOrderStatusPath)
+		Post(updateUserPath)
 
 	if err != nil {
 		tflog.Error(ctx, "An network error ocurred.", err)
@@ -112,21 +126,20 @@ func (c *Client) UpdateCustomOrderStatus(ctx context.Context, req UpdateCustomOr
 
 	var jsonResp EmptyResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
-
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
 	}
 
 	return &jsonResp, nil
 }
 
-type DeleteCustomOrderStatusRequest struct {
+type DeleteUserRequest struct {
 	ID int64 `json:"ID"`
 }
 
-func (c *Client) DeleteCustomOrderStatus(ctx context.Context, req DeleteCustomOrderStatusRequest) (*EmptyResponse, error) {
+func (c *Client) DeleteUser(ctx context.Context, req DeleteUserRequest) (*EmptyResponse, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
-		Post(deleteCustomOrderStatusPath)
+		Post(deleteUserPath)
 
 	if err != nil {
 		tflog.Error(ctx, "An network error ocurred.", err)

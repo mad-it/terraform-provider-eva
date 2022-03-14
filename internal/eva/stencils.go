@@ -147,10 +147,7 @@ type UpdateMessageTemplateRequest struct {
 	IsDisabled         bool             `json:"IsDisable,omitempty"`
 }
 
-type UpdateMessageTemplateResponse struct {
-}
-
-func (c *Client) UpdateMessageTemplate(ctx context.Context, req UpdateMessageTemplateRequest) (*UpdateMessageTemplateResponse, error) {
+func (c *Client) UpdateMessageTemplate(ctx context.Context, req UpdateMessageTemplateRequest) (*EmptyResponse, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(updateMessageTemplatePath)
@@ -167,7 +164,7 @@ func (c *Client) UpdateMessageTemplate(ctx context.Context, req UpdateMessageTem
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp UpdateMessageTemplateResponse
+	var jsonResp EmptyResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
@@ -180,10 +177,7 @@ type DeleteMessageTemplateRequesst struct {
 	ID int64
 }
 
-type DeleteMessageTemplateResponse struct {
-}
-
-func (c *Client) DeleteMessageTemplate(ctx context.Context, req DeleteMessageTemplateRequesst) (*DeleteMessageTemplateResponse, error) {
+func (c *Client) DeleteMessageTemplate(ctx context.Context, req DeleteMessageTemplateRequesst) (*EmptyResponse, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(deleteMessageTemplatePath)
@@ -200,7 +194,7 @@ func (c *Client) DeleteMessageTemplate(ctx context.Context, req DeleteMessageTem
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp DeleteMessageTemplateResponse
+	var jsonResp EmptyResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
