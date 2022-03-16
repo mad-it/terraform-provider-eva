@@ -66,7 +66,9 @@ func (t employeeType) GetSchema(ctx context.Context) (tfsdk.Schema, diag.Diagnos
 							Type:                types.Int64Type,
 						},
 					},
-					tfsdk.ListNestedAttributesOptions{},
+					tfsdk.ListNestedAttributesOptions{
+						MinItems: 1,
+					},
 				),
 			},
 		},
@@ -100,10 +102,10 @@ type employee struct {
 	provider provider
 }
 
-func makeEvaUserRoles(userRoles []roleTypeData) []eva.RoleOrganizationUnitSet {
-	var roles = make([]eva.RoleOrganizationUnitSet, 0)
+func (d employeeTypeData) getEvaUserRoles() []eva.RoleOrganizationUnitSet {
+	var roles []eva.RoleOrganizationUnitSet
 
-	for _, userRole := range userRoles {
+	for _, userRole := range d.Roles {
 		roles = append(roles, eva.RoleOrganizationUnitSet{
 			RoleID:             userRole.RoleID.Value,
 			OrganizationUnitID: userRole.OrganizationUnitID.Value,
@@ -114,18 +116,16 @@ func makeEvaUserRoles(userRoles []roleTypeData) []eva.RoleOrganizationUnitSet {
 	return roles
 }
 
-func makeTerraformUserRoles(userRoles []eva.UserRole) []roleTypeData {
-	var roles = make([]roleTypeData, 0)
+func (d employeeTypeData) setUserRoles(userRoles []eva.UserRole) {
 
 	for _, userRole := range userRoles {
-		roles = append(roles, roleTypeData{
+		d.Roles = append(d.Roles, roleTypeData{
 			RoleID:             types.Int64{Value: userRole.RoleID},
 			OrganizationUnitID: types.Int64{Value: userRole.OrganizationUnitID},
 			UserType:           types.Int64{Value: userRole.UserType},
 		})
 	}
 
-	return roles
 }
 
 func (r employee) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
@@ -156,8 +156,7 @@ func (r employee) Create(ctx context.Context, req tfsdk.CreateResourceRequest, r
 		FirstName:    types.String{Value: data.FirstName.Value},
 		LastName:     types.String{Value: data.LastName.Value},
 		EmailAddress: types.String{Value: data.EmailAddress.Value},
-		//TODO: Should we store password in the state? :/
-		Password: types.String{Value: data.Password.Value},
+		Password:     types.String{Value: data.Password.Value},
 	}
 
 	diags = resp.State.Set(ctx, &employee)
@@ -165,7 +164,7 @@ func (r employee) Create(ctx context.Context, req tfsdk.CreateResourceRequest, r
 
 	_, err = r.provider.evaClient.SetUserRole(ctx, eva.SetUserRoleRequest{
 		UserId: client_resp.ID,
-		Roles:  makeEvaUserRoles(data.Roles),
+		Roles:  data.getEvaUserRoles(),
 	})
 
 	if err != nil {
@@ -201,13 +200,13 @@ func (r employee) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp 
 	data.FirstName = types.String{Value: client_resp.FirstName}
 	data.LastName = types.String{Value: client_resp.LastName}
 	data.EmailAddress = types.String{Value: client_resp.EmailAddress}
-	// TODO: what do we do with password?
+	// Password cannot be read, so this value is not updated in the state.
 
 	roles_client_resp, err := r.provider.evaClient.GetUserRole(ctx, eva.GetUserRoleRequest{
 		UserId: data.ID.Value,
 	})
 
-	data.Roles = makeTerraformUserRoles(roles_client_resp.Roles)
+	data.setUserRoles(roles_client_resp.Roles)
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -235,9 +234,11 @@ func (r employee) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, r
 		return
 	}
 
+	// TODO: Implement UpdatePassword functionality.
+
 	_, err = r.provider.evaClient.SetUserRole(ctx, eva.SetUserRoleRequest{
 		UserId: data.ID.Value,
-		Roles:  makeEvaUserRoles(data.Roles),
+		Roles:  data.getEvaUserRoles(),
 	})
 
 	if err != nil {
