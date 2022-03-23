@@ -26,17 +26,17 @@ type Address struct {
 }
 
 type CreateOrganizationUnitRequest struct {
-	Name                string  `json:"Name,omitempty"`
-	PhoneNumber         string  `json:"PhoneNumber,omitempty"`
-	EmailAddress        string  `json:"EmailAddress,omitempty"`
-	ParentID            int64   `json:"ParentID,omitempty"`
-	CurrencyID          string  `json:"CurrencyID,omitempty"`
-	BackendID           string  `json:"BackendID,omitempty"`
-	CostPriceCurrencyID string  `json:"CostPriceCurrencyID,omitempty"`
-	Type                int64   `json:"Type,omitempty"`
-	Latitude            float64 `json:"Latitude,omitempty"`
-	Longitude           float64 `json:"Longitude,omitempty"`
-	Address             Address `json:"Address,omitempty"`
+	Name                string   `json:"Name,omitempty"`
+	PhoneNumber         string   `json:"PhoneNumber,omitempty"`
+	EmailAddress        string   `json:"EmailAddress,omitempty"`
+	ParentID            int64    `json:"ParentID,omitempty"`
+	CurrencyID          string   `json:"CurrencyID,omitempty"`
+	BackendID           string   `json:"BackendID,omitempty"`
+	CostPriceCurrencyID string   `json:"CostPriceCurrencyID,omitempty"`
+	Type                int64    `json:"Type,omitempty"`
+	Latitude            float64  `json:"Latitude,omitempty"`
+	Longitude           float64  `json:"Longitude,omitempty"`
+	Address             *Address `json:"Address,omitempty"`
 }
 
 type createOrganizationUnitRequest struct {
@@ -78,15 +78,15 @@ func (c *Client) CreateOrganizationUnit(ctx context.Context, req CreateOrganizat
 }
 
 type UpdateOrganizationUnitRequest struct {
-	ID                  int64   `json:"ID,omitempty"`
-	Name                string  `json:"Name,omitempty"`
-	PhoneNumber         string  `json:"PhoneNumber,omitempty"`
-	EmailAddress        string  `json:"EmailAddress,omitempty"`
-	CostPriceCurrencyID string  `json:"CostPriceCurrencyID,omitempty"`
-	Type                int64   `json:"Type,omitempty"`
-	Latitude            float64 `json:"Latitude,omitempty"`
-	Longitude           float64 `json:"Longitude,omitempty"`
-	Address             Address `json:"Address,omitempty"`
+	ID                  int64    `json:"ID,omitempty"`
+	Name                string   `json:"Name,omitempty"`
+	PhoneNumber         string   `json:"PhoneNumber,omitempty"`
+	EmailAddress        string   `json:"EmailAddress,omitempty"`
+	CostPriceCurrencyID string   `json:"CostPriceCurrencyID,omitempty"`
+	Type                int64    `json:"Type,omitempty"`
+	Latitude            float64  `json:"Latitude,omitempty"`
+	Longitude           float64  `json:"Longitude,omitempty"`
+	Address             *Address `json:"Address,omitempty"`
 }
 
 type UpdateOrganizationUnitResponse struct {
