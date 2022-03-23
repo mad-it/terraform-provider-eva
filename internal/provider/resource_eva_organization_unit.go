@@ -140,14 +140,14 @@ func (t organizationUnitType) NewResource(ctx context.Context, in tfsdk.Provider
 }
 
 type address struct {
-	Address1    string  `tfsdk:"address1"`
-	Address2    string  `tfsdk:"address2"`
-	HouseNumber string  `tfsdk:"house_number"`
-	ZipCode     string  `tfsdk:"zip_code"`
-	City        string  `tfsdk:"city"`
-	CountryID   string  `tfsdk:"country_id"`
-	Latitude    float64 `tfsdk:"latitude"`
-	Longitude   float64 `tfsdk:"longitude"`
+	Address1    types.String  `tfsdk:"address1"`
+	Address2    types.String  `tfsdk:"address2"`
+	HouseNumber types.String  `tfsdk:"house_number"`
+	ZipCode     types.String  `tfsdk:"zip_code"`
+	City        types.String  `tfsdk:"city"`
+	CountryID   types.String  `tfsdk:"country_id"`
+	Latitude    types.Float64 `tfsdk:"latitude"`
+	Longitude   types.Float64 `tfsdk:"longitude"`
 }
 type organizationUnitData struct {
 	Id           types.Int64  `tfsdk:"id"`
@@ -187,16 +187,16 @@ func (r organizationUnit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 	}
 	// check if address input is not empty
 	if data.Address != nil {
-		organizationUnitRequest.Latitude = data.Address.Latitude
-		organizationUnitRequest.Longitude = data.Address.Longitude
+		organizationUnitRequest.Latitude = data.Address.Latitude.Value
+		organizationUnitRequest.Longitude = data.Address.Longitude.Value
 
 		organizationUnitRequest.Address = &eva.Address{
-			Address1:    data.Address.Address1,
-			Address2:    data.Address.Address2,
-			HouseNumber: data.Address.HouseNumber,
-			ZipCode:     data.Address.ZipCode,
-			City:        data.Address.City,
-			CountryID:   data.Address.CountryID,
+			Address1:    data.Address.Address1.Value,
+			Address2:    data.Address.Address2.Value,
+			HouseNumber: data.Address.HouseNumber.Value,
+			ZipCode:     data.Address.ZipCode.Value,
+			City:        data.Address.City.Value,
+			CountryID:   data.Address.CountryID.Value,
 		}
 	}
 
@@ -242,14 +242,14 @@ func (r organizationUnit) Read(ctx context.Context, req tfsdk.ReadResourceReques
 	data.Name = types.String{Value: client_resp.Name}
 	data.ParentId = types.Int64{Value: client_resp.ParentID}
 	data.Address = &address{
-		Address1:    client_resp.Address.Address1,
-		Address2:    client_resp.Address.Address2,
-		HouseNumber: client_resp.Address.HouseNumber,
-		ZipCode:     client_resp.Address.ZipCode,
-		City:        client_resp.Address.City,
-		CountryID:   client_resp.Address.CountryID,
-		Latitude:    client_resp.Latitude,
-		Longitude:   client_resp.Longitude,
+		Address1:    types.String{Value: client_resp.Address.Address1},
+		Address2:    types.String{Value: client_resp.Address.Address2},
+		HouseNumber: types.String{Value: client_resp.Address.HouseNumber},
+		ZipCode:     types.String{Value: client_resp.Address.ZipCode},
+		City:        types.String{Value: client_resp.Address.City},
+		CountryID:   types.String{Value: client_resp.Address.CountryID},
+		Latitude:    types.Float64{Value: client_resp.Latitude},
+		Longitude:   types.Float64{Value: client_resp.Longitude},
 	}
 	data.Type = types.Int64{Value: client_resp.Type}
 
@@ -277,16 +277,16 @@ func (r organizationUnit) Update(ctx context.Context, req tfsdk.UpdateResourceRe
 	}
 	// check if address input is not empty
 	if data.Address != nil {
-		organizationUnitRequest.Latitude = data.Address.Latitude
-		organizationUnitRequest.Longitude = data.Address.Longitude
+		organizationUnitRequest.Latitude = data.Address.Latitude.Value
+		organizationUnitRequest.Longitude = data.Address.Longitude.Value
 
 		organizationUnitRequest.Address = &eva.Address{
-			Address1:    data.Address.Address1,
-			Address2:    data.Address.Address2,
-			HouseNumber: data.Address.HouseNumber,
-			ZipCode:     data.Address.ZipCode,
-			City:        data.Address.City,
-			CountryID:   data.Address.CountryID,
+			Address1:    data.Address.Address1.Value,
+			Address2:    data.Address.Address2.Value,
+			HouseNumber: data.Address.HouseNumber.Value,
+			ZipCode:     data.Address.ZipCode.Value,
+			City:        data.Address.City.Value,
+			CountryID:   data.Address.CountryID.Value,
 		}
 	}
 
