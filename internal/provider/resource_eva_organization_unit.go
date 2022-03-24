@@ -241,17 +241,20 @@ func (r organizationUnit) Read(ctx context.Context, req tfsdk.ReadResourceReques
 	data.PhoneNumber = types.String{Value: client_resp.PhoneNumber}
 	data.Name = types.String{Value: client_resp.Name}
 	data.ParentId = types.Int64{Value: client_resp.ParentID}
-	data.Address = &address{
-		Address1:    types.String{Value: client_resp.Address.Address1},
-		Address2:    types.String{Value: client_resp.Address.Address2},
-		HouseNumber: types.String{Value: client_resp.Address.HouseNumber},
-		ZipCode:     types.String{Value: client_resp.Address.ZipCode},
-		City:        types.String{Value: client_resp.Address.City},
-		CountryID:   types.String{Value: client_resp.Address.CountryID},
-		Latitude:    types.Float64{Value: client_resp.Latitude},
-		Longitude:   types.Float64{Value: client_resp.Longitude},
-	}
 	data.Type = types.Int64{Value: client_resp.Type}
+
+	if client_resp.Address != nil {
+		data.Address = &address{
+			Address1:    types.String{Value: client_resp.Address.Address1},
+			Address2:    types.String{Value: client_resp.Address.Address2},
+			HouseNumber: types.String{Value: client_resp.Address.HouseNumber},
+			ZipCode:     types.String{Value: client_resp.Address.ZipCode},
+			City:        types.String{Value: client_resp.Address.City},
+			CountryID:   types.String{Value: client_resp.Address.CountryID},
+			Latitude:    types.Float64{Value: client_resp.Latitude},
+			Longitude:   types.Float64{Value: client_resp.Longitude},
+		}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)

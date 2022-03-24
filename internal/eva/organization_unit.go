@@ -123,18 +123,18 @@ type GetOrganizationUnitDetailedRequest struct {
 }
 
 type GetOrganizationUnitDetailedResponse struct {
-	ID                  int64   `json:"ID"`
-	Name                string  `json:"Name"`
-	PhoneNumber         string  `json:"PhoneNumber"`
-	EmailAddress        string  `json:"EmailAddress"`
-	ParentID            int64   `json:"ParentID"`
-	CurrencyID          string  `json:"CurrencyID"`
-	BackendID           string  `json:"BackendID"`
-	CostPriceCurrencyID string  `json:"CostPriceCurrencyID"`
-	Type                int64   `json:"Type"`
-	Latitude            float64 `json:"Latitude"`
-	Longitude           float64 `json:"Longitude"`
-	Address             Address `json:"Address"`
+	ID                  int64    `json:"ID"`
+	Name                string   `json:"Name"`
+	PhoneNumber         string   `json:"PhoneNumber"`
+	EmailAddress        string   `json:"EmailAddress"`
+	ParentID            int64    `json:"ParentID"`
+	CurrencyID          string   `json:"CurrencyID"`
+	BackendID           string   `json:"BackendID"`
+	CostPriceCurrencyID string   `json:"CostPriceCurrencyID"`
+	Type                int64    `json:"Type"`
+	Latitude            float64  `json:"Latitude"`
+	Longitude           float64  `json:"Longitude"`
+	Address             *Address `json:"Address,omitempty"`
 }
 
 func (c *Client) GetOrganizationUnitDetailed(ctx context.Context, req GetOrganizationUnitDetailedRequest) (*GetOrganizationUnitDetailedResponse, error) {
