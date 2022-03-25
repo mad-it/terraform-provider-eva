@@ -38,9 +38,8 @@ func (m boolDefaultModifier) Modify(ctx context.Context, req tfsdk.ModifyAttribu
 		return
 	}
 
-	if !bool.Null {
-		return
+	if bool.Unknown {
+		resp.AttributePlan = types.Bool{Value: m.Default}
 	}
 
-	resp.AttributePlan = types.Bool{Value: m.Default}
 }
