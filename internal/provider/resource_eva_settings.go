@@ -106,6 +106,12 @@ func (r setting) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *
 		return
 	}
 
+	// Value does not exist so the resource is already removed.
+	if len(client_resp.Value) == 0 {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	var hasSensitiveDataChanged = strings.HasPrefix(client_resp.Value, "********") &&
 		strings.HasSuffix(client_resp.Value, data.Value.Value[len(data.Value.Value)-4:])
 
