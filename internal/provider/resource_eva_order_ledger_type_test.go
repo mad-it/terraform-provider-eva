@@ -22,13 +22,13 @@ func TestAccEvaOrderLedgerTypeResource(t *testing.T) {
 			},
 			// // ImportState testing
 			// {
-			// 	ResourceName:      "eva_role.test",
+			// 	ResourceName:      "eva_order_ledger_type.test",
 			// 	ImportState:       true,
 			// 	ImportStateVerify: true,
 			// },
 			// Update and Read testing
 			{
-				Config: testAccEvaCustomOrderStatusResourceConfig("completed", "completed order"),
+				Config: testAccEvaOrderLedgerTypeResourceConfig("completed", "completed order"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("eva_order_ledger_type.test", "name", "completed"),
 					resource.TestCheckResourceAttr("eva_order_ledger_type.test", "description", "completed order"),
