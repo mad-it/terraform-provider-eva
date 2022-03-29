@@ -263,7 +263,6 @@ func (c *Client) GetUserRole(ctx context.Context, req GetUserRoleRequest) (*GetU
 
 	var jsonResp GetUserRoleResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
-
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Error: %s \n Received: %s", err, resp.String()))
 	}
 

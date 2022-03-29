@@ -117,7 +117,6 @@ func (d employeeTypeData) getEvaUserRoles() []eva.RoleOrganizationUnitSet {
 }
 
 func (d employeeTypeData) setUserRoles(userRoles []eva.UserRole) {
-
 	for _, userRole := range userRoles {
 		d.Roles = append(d.Roles, roleTypeData{
 			RoleID:             types.Int64{Value: userRole.RoleID},
