@@ -53,7 +53,6 @@ func (c *Client) CreateEmployee(ctx context.Context, req CreateEmployeeUserReque
 
 	var jsonResp CreateEmployeeUserResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
-
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
 	}
 
@@ -72,7 +71,6 @@ type GetEmployeeResponse struct {
 }
 
 func (c *Client) GetUser(ctx context.Context, req GetUserRequest) (*GetEmployeeResponse, error) {
-
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(getUserPath)
@@ -93,7 +91,6 @@ func (c *Client) GetUser(ctx context.Context, req GetUserRequest) (*GetEmployeeR
 
 	var jsonResp GetEmployeeResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
-
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Error: %s \n Received: %s", err, resp.String()))
 	}
 
@@ -155,7 +152,6 @@ func (c *Client) DeleteUser(ctx context.Context, req DeleteUserRequest) (*EmptyR
 
 	var jsonResp EmptyResponse
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
-
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
 	}
 
