@@ -80,6 +80,7 @@ func (p *provider) GetResources(ctx context.Context) (map[string]tfsdk.ResourceT
 		"eva_custom_order_status": customOrderStatusType{},
 		"eva_employee":            employeeType{},
 		"eva_order_ledger_type":   orderLedgerTypeSchema{},
+		"eva_cookbook_account":    cookbookAccountType{},
 	}, nil
 }
 
