@@ -110,7 +110,7 @@ type UpdateRoleRequest struct {
 	Code     string `json:"Code,omitempty"`
 }
 
-func (c *Client) UpdateRole(ctx context.Context, req UpdateRoleRequest) (*EmptyResponse, error) {
+func (c *Client) UpdateRole(ctx context.Context, req UpdateRoleRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(updateRolePath)
@@ -127,7 +127,7 @@ func (c *Client) UpdateRole(ctx context.Context, req UpdateRoleRequest) (*EmptyR
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
 	}
@@ -139,7 +139,7 @@ type DeleteRoleRequest struct {
 	ID int64 `json:"ID"`
 }
 
-func (c *Client) DeleteRole(ctx context.Context, req DeleteRoleRequest) (*EmptyResponse, error) {
+func (c *Client) DeleteRole(ctx context.Context, req DeleteRoleRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(deleteRolePath)
@@ -156,7 +156,7 @@ func (c *Client) DeleteRole(ctx context.Context, req DeleteRoleRequest) (*EmptyR
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
@@ -170,7 +170,7 @@ type AttachFunctionalitiesToRoleRequest struct {
 	ScopedFunctionalities []RoleFunctionality `json:"ScopedFunctionalities,omitempty"`
 }
 
-func (c *Client) AttachFunctionalitiesToRole(ctx context.Context, req AttachFunctionalitiesToRoleRequest) (*EmptyResponse, error) {
+func (c *Client) AttachFunctionalitiesToRole(ctx context.Context, req AttachFunctionalitiesToRoleRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(attachFunctionalitiesToRolePath)
@@ -187,7 +187,7 @@ func (c *Client) AttachFunctionalitiesToRole(ctx context.Context, req AttachFunc
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
 	}
@@ -200,7 +200,7 @@ type DetachFunctionalitiesFromRoleRequest struct {
 	ScopedFunctionalities []RoleFunctionality `json:"ScopedFunctionalities,omitempty"`
 }
 
-func (c *Client) DetachFunctionalitiesFromRole(ctx context.Context, req DetachFunctionalitiesFromRoleRequest) (*EmptyResponse, error) {
+func (c *Client) DetachFunctionalitiesFromRole(ctx context.Context, req DetachFunctionalitiesFromRoleRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(detachFunctionalitiesFromRolePath)
@@ -219,7 +219,7 @@ func (c *Client) DetachFunctionalitiesFromRole(ctx context.Context, req DetachFu
 
 	tflog.Debug(ctx, "Request info", "Status code", resp.StatusCode(), "body", resp.String())
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Error: %s \n Received: %s", err, resp.String()))
@@ -280,7 +280,7 @@ type SetUserRoleRequest struct {
 	Roles  []RoleOrganizationUnitSet `json:"Roles"`
 }
 
-func (c *Client) SetUserRole(ctx context.Context, req SetUserRoleRequest) (*EmptyResponse, error) {
+func (c *Client) SetUserRole(ctx context.Context, req SetUserRoleRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(setUserRolePath)
@@ -299,7 +299,7 @@ func (c *Client) SetUserRole(ctx context.Context, req SetUserRoleRequest) (*Empt
 
 	tflog.Debug(ctx, "Request info", "Status code", resp.StatusCode(), "body", resp.String())
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Error: %s \n Received: %s", err, resp.String()))

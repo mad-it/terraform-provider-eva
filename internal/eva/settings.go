@@ -21,7 +21,7 @@ type SetSettingsRequest struct {
 	OrganizationUnitID int64  `json:"OrganizationUnitID,omitempty"`
 }
 
-func (c *Client) SetSettings(ctx context.Context, req SetSettingsRequest) (*EmptyResponse, error) {
+func (c *Client) SetSettings(ctx context.Context, req SetSettingsRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(setSettingPath)
@@ -38,7 +38,7 @@ func (c *Client) SetSettings(ctx context.Context, req SetSettingsRequest) (*Empt
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
@@ -90,7 +90,7 @@ type UnsetSettingsRequest struct {
 	OrganizationUnitID int64  `json:"OrganizationUnitID,omitempty"`
 }
 
-func (c *Client) UnsetSettings(ctx context.Context, req UnsetSettingsRequest) (*EmptyResponse, error) {
+func (c *Client) UnsetSettings(ctx context.Context, req UnsetSettingsRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(unsetSettingPath)
@@ -107,7 +107,7 @@ func (c *Client) UnsetSettings(ctx context.Context, req UnsetSettingsRequest) (*
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))

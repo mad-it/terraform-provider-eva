@@ -89,7 +89,7 @@ type UpdateOrganizationUnitRequest struct {
 	Address             *Address `json:"Address,omitempty"`
 }
 
-func (c *Client) UpdateOrganizationUnit(ctx context.Context, req UpdateOrganizationUnitRequest) (*EmptyResponse, error) {
+func (c *Client) UpdateOrganizationUnit(ctx context.Context, req UpdateOrganizationUnitRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(updateOrganizationUnitPath)
@@ -106,7 +106,7 @@ func (c *Client) UpdateOrganizationUnit(ctx context.Context, req UpdateOrganizat
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
@@ -167,7 +167,7 @@ type DeleteOrganizationUnitRequest struct {
 	ID int64 `json:"OrganizationUnitID"`
 }
 
-func (c *Client) DeleteOrganizationUnit(ctx context.Context, req DeleteOrganizationUnitRequest) (*EmptyResponse, error) {
+func (c *Client) DeleteOrganizationUnit(ctx context.Context, req DeleteOrganizationUnitRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(deleteOrganizationUnitPath)
@@ -184,7 +184,7 @@ func (c *Client) DeleteOrganizationUnit(ctx context.Context, req DeleteOrganizat
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))

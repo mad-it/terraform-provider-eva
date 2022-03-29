@@ -93,7 +93,7 @@ type UpdateCustomOrderStatusRequest struct {
 	Description string `json:"Description,omitempty"`
 }
 
-func (c *Client) UpdateCustomOrderStatus(ctx context.Context, req UpdateCustomOrderStatusRequest) (*EmptyResponse, error) {
+func (c *Client) UpdateCustomOrderStatus(ctx context.Context, req UpdateCustomOrderStatusRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(updateCustomOrderStatusPath)
@@ -110,7 +110,7 @@ func (c *Client) UpdateCustomOrderStatus(ctx context.Context, req UpdateCustomOr
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
@@ -123,7 +123,7 @@ type DeleteCustomOrderStatusRequest struct {
 	ID int64 `json:"ID"`
 }
 
-func (c *Client) DeleteCustomOrderStatus(ctx context.Context, req DeleteCustomOrderStatusRequest) (*EmptyResponse, error) {
+func (c *Client) DeleteCustomOrderStatus(ctx context.Context, req DeleteCustomOrderStatusRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(deleteCustomOrderStatusPath)
@@ -140,7 +140,7 @@ func (c *Client) DeleteCustomOrderStatus(ctx context.Context, req DeleteCustomOr
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))

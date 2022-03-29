@@ -137,7 +137,7 @@ type DeleteAccountingRecipeRequest struct {
 	ID int64 `json:"ID"`
 }
 
-func (c *Client) DeleteAccountingRecipe(ctx context.Context, req DeleteAccountingRecipeRequest) (*EmptyResponse, error) {
+func (c *Client) DeleteAccountingRecipe(ctx context.Context, req DeleteAccountingRecipeRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(deleteAccountingRecipePath)
@@ -154,7 +154,7 @@ func (c *Client) DeleteAccountingRecipe(ctx context.Context, req DeleteAccountin
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))

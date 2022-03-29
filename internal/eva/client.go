@@ -30,4 +30,4 @@ func (c *Client) SetAuthorizationHeader(token string) {
 	c.restClient.SetHeader("authorization", token)
 }
 
-type EmptyResponse struct {}
+type Empty struct{}

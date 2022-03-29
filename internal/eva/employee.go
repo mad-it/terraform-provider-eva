@@ -104,7 +104,7 @@ type UpdateUserRequest struct {
 	EmailAddress string `json:"EmailAddress,omitempty"`
 }
 
-func (c *Client) UpdateUser(ctx context.Context, req UpdateUserRequest) (*EmptyResponse, error) {
+func (c *Client) UpdateUser(ctx context.Context, req UpdateUserRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(updateUserPath)
@@ -121,7 +121,7 @@ func (c *Client) UpdateUser(ctx context.Context, req UpdateUserRequest) (*EmptyR
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
 	}
@@ -133,7 +133,7 @@ type DeleteUserRequest struct {
 	ID int64 `json:"ID"`
 }
 
-func (c *Client) DeleteUser(ctx context.Context, req DeleteUserRequest) (*EmptyResponse, error) {
+func (c *Client) DeleteUser(ctx context.Context, req DeleteUserRequest) (*Empty, error) {
 	resp, err := c.restClient.R().
 		SetBody(req).
 		Post(deleteUserPath)
@@ -150,7 +150,7 @@ func (c *Client) DeleteUser(ctx context.Context, req DeleteUserRequest) (*EmptyR
 		return nil, errors.New(fmt.Sprintf("Request failed with error: %s", resp.String()))
 	}
 
-	var jsonResp EmptyResponse
+	var jsonResp Empty
 	if err := json.Unmarshal([]byte(resp.Body()), &jsonResp); err != nil {
 		return nil, errors.New(fmt.Sprintf("Response could not be parsed. Received: %s", resp.String()))
 	}
