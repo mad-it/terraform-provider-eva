@@ -140,14 +140,14 @@ func (t organizationUnitType) NewResource(ctx context.Context, in tfsdk.Provider
 }
 
 type address struct {
-	Address1    string  `tfsdk:"address1"`
-	Address2    string  `tfsdk:"address2"`
-	HouseNumber string  `tfsdk:"house_number"`
-	ZipCode     string  `tfsdk:"zip_code"`
-	City        string  `tfsdk:"city"`
-	CountryID   string  `tfsdk:"country_id"`
-	Latitude    float64 `tfsdk:"latitude"`
-	Longitude   float64 `tfsdk:"longitude"`
+	Address1    types.String  `tfsdk:"address1"`
+	Address2    types.String  `tfsdk:"address2"`
+	HouseNumber types.String  `tfsdk:"house_number"`
+	ZipCode     types.String  `tfsdk:"zip_code"`
+	City        types.String  `tfsdk:"city"`
+	CountryID   types.String  `tfsdk:"country_id"`
+	Latitude    types.Float64 `tfsdk:"latitude"`
+	Longitude   types.Float64 `tfsdk:"longitude"`
 }
 type organizationUnitData struct {
 	Id           types.Int64  `tfsdk:"id"`
@@ -157,7 +157,7 @@ type organizationUnitData struct {
 	CurrencyId   types.String `tfsdk:"currency_id"`
 	ParentId     types.Int64  `tfsdk:"parent_id"`
 	BackendId    types.String `tfsdk:"backend_id"`
-	Address      address      `tfsdk:"address"`
+	Address      *address     `tfsdk:"address"`
 	Type         types.Int64  `tfsdk:"type"`
 }
 
@@ -175,7 +175,7 @@ func (r organizationUnit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 		return
 	}
 
-	client_resp, err := r.provider.evaClient.CreateOrganizationUnit(ctx, eva.CreateOrganizationUnitRequest{
+	var organizationUnitRequest = eva.CreateOrganizationUnitRequest{
 		Name:                data.Name.Value,
 		PhoneNumber:         data.PhoneNumber.Value,
 		BackendID:           data.BackendId.Value,
@@ -183,18 +183,24 @@ func (r organizationUnit) Create(ctx context.Context, req tfsdk.CreateResourceRe
 		ParentID:            data.ParentId.Value,
 		CurrencyID:          data.CurrencyId.Value,
 		CostPriceCurrencyID: data.CurrencyId.Value,
-		Latitude:            data.Address.Latitude,
-		Longitude:           data.Address.Longitude,
-		Address: eva.Address{
-			Address1:    data.Address.Address1,
-			Address2:    data.Address.Address2,
-			HouseNumber: data.Address.HouseNumber,
-			ZipCode:     data.Address.ZipCode,
-			City:        data.Address.City,
-			CountryID:   data.Address.CountryID,
-		},
-		Type: data.Type.Value,
-	})
+		Type:                data.Type.Value,
+	}
+	// check if address input is not empty
+	if data.Address != nil {
+		organizationUnitRequest.Latitude = data.Address.Latitude.Value
+		organizationUnitRequest.Longitude = data.Address.Longitude.Value
+
+		organizationUnitRequest.Address = &eva.Address{
+			Address1:    data.Address.Address1.Value,
+			Address2:    data.Address.Address2.Value,
+			HouseNumber: data.Address.HouseNumber.Value,
+			ZipCode:     data.Address.ZipCode.Value,
+			City:        data.Address.City.Value,
+			CountryID:   data.Address.CountryID.Value,
+		}
+	}
+
+	client_resp, err := r.provider.evaClient.CreateOrganizationUnit(ctx, organizationUnitRequest)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Creating organization unit failed.", fmt.Sprintf("Unable to create example, got error: %s", err))
@@ -235,17 +241,20 @@ func (r organizationUnit) Read(ctx context.Context, req tfsdk.ReadResourceReques
 	data.PhoneNumber = types.String{Value: client_resp.PhoneNumber}
 	data.Name = types.String{Value: client_resp.Name}
 	data.ParentId = types.Int64{Value: client_resp.ParentID}
-	data.Address = address{
-		Address1:    client_resp.Address.Address1,
-		Address2:    client_resp.Address.Address2,
-		HouseNumber: client_resp.Address.HouseNumber,
-		ZipCode:     client_resp.Address.ZipCode,
-		City:        client_resp.Address.City,
-		CountryID:   client_resp.Address.CountryID,
-		Latitude:    client_resp.Latitude,
-		Longitude:   client_resp.Longitude,
-	}
 	data.Type = types.Int64{Value: client_resp.Type}
+
+	if client_resp.Address != nil {
+		data.Address = &address{
+			Address1:    types.String{Value: client_resp.Address.Address1},
+			Address2:    types.String{Value: client_resp.Address.Address2},
+			HouseNumber: types.String{Value: client_resp.Address.HouseNumber},
+			ZipCode:     types.String{Value: client_resp.Address.ZipCode},
+			City:        types.String{Value: client_resp.Address.City},
+			CountryID:   types.String{Value: client_resp.Address.CountryID},
+			Latitude:    types.Float64{Value: client_resp.Latitude},
+			Longitude:   types.Float64{Value: client_resp.Longitude},
+		}
+	}
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -261,24 +270,30 @@ func (r organizationUnit) Update(ctx context.Context, req tfsdk.UpdateResourceRe
 		return
 	}
 
-	_, err := r.provider.evaClient.UpdateOrganizationUnit(ctx, eva.UpdateOrganizationUnitRequest{
+	var organizationUnitRequest = eva.UpdateOrganizationUnitRequest{
 		ID:                  data.Id.Value,
 		Name:                data.Name.Value,
 		PhoneNumber:         data.PhoneNumber.Value,
 		EmailAddress:        data.EmailAddress.Value,
 		CostPriceCurrencyID: data.CurrencyId.Value,
-		Latitude:            data.Address.Latitude,
-		Longitude:           data.Address.Longitude,
-		Address: eva.Address{
-			Address1:    data.Address.Address1,
-			Address2:    data.Address.Address2,
-			HouseNumber: data.Address.HouseNumber,
-			ZipCode:     data.Address.ZipCode,
-			City:        data.Address.City,
-			CountryID:   data.Address.CountryID,
-		},
-		Type: data.Type.Value,
-	})
+		Type:                data.Type.Value,
+	}
+	// check if address input is not empty
+	if data.Address != nil {
+		organizationUnitRequest.Latitude = data.Address.Latitude.Value
+		organizationUnitRequest.Longitude = data.Address.Longitude.Value
+
+		organizationUnitRequest.Address = &eva.Address{
+			Address1:    data.Address.Address1.Value,
+			Address2:    data.Address.Address2.Value,
+			HouseNumber: data.Address.HouseNumber.Value,
+			ZipCode:     data.Address.ZipCode.Value,
+			City:        data.Address.City.Value,
+			CountryID:   data.Address.CountryID.Value,
+		}
+	}
+
+	_, err := r.provider.evaClient.UpdateOrganizationUnit(ctx, organizationUnitRequest)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Updating organization unit failed.", fmt.Sprintf("Unable to update OU, got error: %s", err))

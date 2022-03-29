@@ -26,17 +26,17 @@ type Address struct {
 }
 
 type CreateOrganizationUnitRequest struct {
-	Name                string  `json:"Name,omitempty"`
-	PhoneNumber         string  `json:"PhoneNumber,omitempty"`
-	EmailAddress        string  `json:"EmailAddress,omitempty"`
-	ParentID            int64   `json:"ParentID,omitempty"`
-	CurrencyID          string  `json:"CurrencyID,omitempty"`
-	BackendID           string  `json:"BackendID,omitempty"`
-	CostPriceCurrencyID string  `json:"CostPriceCurrencyID,omitempty"`
-	Type                int64   `json:"Type,omitempty"`
-	Latitude            float64 `json:"Latitude,omitempty"`
-	Longitude           float64 `json:"Longitude,omitempty"`
-	Address             Address `json:"Address,omitempty"`
+	Name                string   `json:"Name,omitempty"`
+	PhoneNumber         string   `json:"PhoneNumber,omitempty"`
+	EmailAddress        string   `json:"EmailAddress,omitempty"`
+	ParentID            int64    `json:"ParentID,omitempty"`
+	CurrencyID          string   `json:"CurrencyID,omitempty"`
+	BackendID           string   `json:"BackendID,omitempty"`
+	CostPriceCurrencyID string   `json:"CostPriceCurrencyID,omitempty"`
+	Type                int64    `json:"Type,omitempty"`
+	Latitude            float64  `json:"Latitude,omitempty"`
+	Longitude           float64  `json:"Longitude,omitempty"`
+	Address             *Address `json:"Address,omitempty"`
 }
 
 type createOrganizationUnitRequest struct {
@@ -78,15 +78,15 @@ func (c *Client) CreateOrganizationUnit(ctx context.Context, req CreateOrganizat
 }
 
 type UpdateOrganizationUnitRequest struct {
-	ID                  int64   `json:"ID,omitempty"`
-	Name                string  `json:"Name,omitempty"`
-	PhoneNumber         string  `json:"PhoneNumber,omitempty"`
-	EmailAddress        string  `json:"EmailAddress,omitempty"`
-	CostPriceCurrencyID string  `json:"CostPriceCurrencyID,omitempty"`
-	Type                int64   `json:"Type,omitempty"`
-	Latitude            float64 `json:"Latitude,omitempty"`
-	Longitude           float64 `json:"Longitude,omitempty"`
-	Address             Address `json:"Address,omitempty"`
+	ID                  int64    `json:"ID,omitempty"`
+	Name                string   `json:"Name,omitempty"`
+	PhoneNumber         string   `json:"PhoneNumber,omitempty"`
+	EmailAddress        string   `json:"EmailAddress,omitempty"`
+	CostPriceCurrencyID string   `json:"CostPriceCurrencyID,omitempty"`
+	Type                int64    `json:"Type,omitempty"`
+	Latitude            float64  `json:"Latitude,omitempty"`
+	Longitude           float64  `json:"Longitude,omitempty"`
+	Address             *Address `json:"Address,omitempty"`
 }
 
 func (c *Client) UpdateOrganizationUnit(ctx context.Context, req UpdateOrganizationUnitRequest) (*EmptyResponse, error) {
@@ -120,18 +120,18 @@ type GetOrganizationUnitDetailedRequest struct {
 }
 
 type GetOrganizationUnitDetailedResponse struct {
-	ID                  int64   `json:"ID"`
-	Name                string  `json:"Name"`
-	PhoneNumber         string  `json:"PhoneNumber"`
-	EmailAddress        string  `json:"EmailAddress"`
-	ParentID            int64   `json:"ParentID"`
-	CurrencyID          string  `json:"CurrencyID"`
-	BackendID           string  `json:"BackendID"`
-	CostPriceCurrencyID string  `json:"CostPriceCurrencyID"`
-	Type                int64   `json:"Type"`
-	Latitude            float64 `json:"Latitude"`
-	Longitude           float64 `json:"Longitude"`
-	Address             Address `json:"Address"`
+	ID                  int64    `json:"ID"`
+	Name                string   `json:"Name"`
+	PhoneNumber         string   `json:"PhoneNumber"`
+	EmailAddress        string   `json:"EmailAddress"`
+	ParentID            int64    `json:"ParentID"`
+	CurrencyID          string   `json:"CurrencyID"`
+	BackendID           string   `json:"BackendID"`
+	CostPriceCurrencyID string   `json:"CostPriceCurrencyID"`
+	Type                int64    `json:"Type"`
+	Latitude            float64  `json:"Latitude"`
+	Longitude           float64  `json:"Longitude"`
+	Address             *Address `json:"Address,omitempty"`
 }
 
 func (c *Client) GetOrganizationUnitDetailed(ctx context.Context, req GetOrganizationUnitDetailedRequest) (*GetOrganizationUnitDetailedResponse, error) {

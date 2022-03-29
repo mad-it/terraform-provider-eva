@@ -132,7 +132,7 @@ func (s roleProviderTypeData) setListOfFunctionalities(scopedFunctionalities []e
 func (r role) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	var data roleProviderTypeData
 
-	diags := req.Config.Get(ctx, &data)
+	diags := req.Plan.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
